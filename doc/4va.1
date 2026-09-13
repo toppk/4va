@@ -6,7 +6,7 @@
 \fI4va, ctorus, cutctorus, 4vdmake\fP
 - 4D object tumbler for X-Windows and object generation programs
 .SH SYNOPSIS
-\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-rbuffer | -rdirect | -rpresent] [-aa] [-cw]
+\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-control] [-rbuffer | -rdirect | -rpresent] [-aa] [-cw]
 [ -zd \fI<dist>\fP ] [ -wd \fI<dist>\fP ] [ -lc \fI<color>\fP ] 
 [ -bc \fI<color>\fP ] [ -lw \fI<width>\fP ] [ -d \fI<display>\fP ] 
 [ -s \fI<scale>\fP ] [ -fps \fI<rate>\fP ] [ -h | -? ] \fI<object-file|directory>\fP ...
@@ -50,6 +50,13 @@ suppress a title bar even being displayed on the window.
 Don't daemonize. Normally 4va forks and the parent exits, leaving the
 animation running in the background. With \fB-nd\fP it stays in the
 foreground, so it can be stopped with an interrupt or run under a debugger.
+.TP
+\fB-control\fP
+Enable keyboard control in the 4va window. \fBRight\fP and \fBLeft\fP show
+the next and previous object given on the command line, skipping files that
+fail to load; \fBUp\fP and \fBDown\fP cycle the line color; \fBq\fP or
+\fBEscape\fP quits. The title bar shows the current file and its position
+in the list.
 .TP
 \fB-rbuffer\fP, \fB-rdirect\fP
 Choose how frames are drawn. With \fB-rbuffer\fP (the default) each frame
@@ -179,11 +186,11 @@ which the line extends. In the above example, we have one line between point
 The defaults stay close to the original behavior. On a modern display
 the best results come from
 .IP
-\fB4va -nd -rpresent -aa\fP \fI<object-file>\fP
+\fB4va -nd -rpresent -aa -control\fP \fI<object-file|directory>\fP ...
 .P
-which runs in the foreground, shows frames in sync with the display, and
-draws anti-aliased lines. \fB-rpresent\fP and \fB-aa\fP fall back with a
-warning where unsupported.
+which runs in the foreground, shows frames in sync with the display,
+draws anti-aliased lines, and lets the arrow keys browse objects and colors.
+\fB-rpresent\fP and \fB-aa\fP fall back with a warning where unsupported.
 .SH NOTES
 4va allocates memory for objects dynamically. If 4va runs out of memory
 it will exit with a return code of -1 and print a "malloc" error

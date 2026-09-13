@@ -24,7 +24,7 @@
 #include "4vahead.h"
 
 char **objfiles;
-int nobjfiles;
+int nobjfiles, curobj;
 
 static void append(char *path) {
   char **grown;
@@ -124,7 +124,10 @@ int loadobject(int start, int step) {
 
   for (k=0; k<nobjfiles; k++) {
     i=((start + k*step) % nobjfiles + nobjfiles) % nobjfiles;
-    if (loaddfile(objfiles[i]) == 0) return i;
+    if (loaddfile(objfiles[i]) == 0) {
+      curobj=i;
+      return i;
+    }
   }
   return -1;
 }

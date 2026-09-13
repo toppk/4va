@@ -64,7 +64,7 @@ extern int CENX, CENY;
 extern int SIZY;
 extern long unsigned FRC, BKC;
 extern char FRCname[512], BKCname[512];
-extern int LTHK, CLRWIN, RESCALE, TITLEBAR, FPS, RENDER, AA;
+extern int LTHK, CLRWIN, RESCALE, TITLEBAR, FPS, RENDER, AA, CONTROL;
 extern float LWIDTH;
 
 #define RENDER_DIRECT 0
@@ -83,7 +83,7 @@ extern int loaddfile(const char *filename);
 extern void addpath(const char *path);
 extern int loadobject(int start, int step);
 extern char **objfiles;
-extern int nobjfiles;
+extern int nobjfiles, curobj;
 
 
 /* 4VaD_ Prototypes ... display */
@@ -96,3 +96,5 @@ extern void g_startup(void);
 extern void g_shutdown(void);
 extern double g_refreshrate(void);
 extern int g_vsync(int fps, double hz);
+extern void g_objectchanged(void);
+extern int g_controls(int *objstep);

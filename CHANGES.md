@@ -4,7 +4,8 @@
 
 ### Recommended settings
 For the best results on a modern display, run
-`4va -nd -rpresent -aa <object>`: foreground, vsync'd and anti-aliased.
+`4va -nd -rpresent -aa -control <objects or directory>`: foreground,
+vsync'd, anti-aliased, and browsable with the arrow keys.
 These are not the defaults, which stay close to the original behavior;
 `-rpresent` and `-aa` fall back with a warning where unsupported.
 
@@ -12,6 +13,9 @@ These are not the defaults, which stay close to the original behavior;
 - Several object files and directories can be given on the command line; a
   directory stands for the `.4vd` files in it, in name order. The first
   object that loads is shown.
+- `-control` turns on keyboard control in the window: Right/Left show the
+  next/previous object (skipping files that fail to load), Up/Down cycle the
+  line color, and q or Escape quits. The title shows the file and position.
 - `-rbuffer` (default) draws each frame into an off-screen pixmap and copies
   it to the window in one step, removing flicker, half-drawn frames and
   leftover pixels. `-rdirect` keeps the original draw-to-window rendering.

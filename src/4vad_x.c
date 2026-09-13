@@ -18,6 +18,7 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/keysym.h>
 #ifdef HAVE_XRANDR
 #include <X11/extensions/Xrandr.h>
 #endif
@@ -30,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <math.h>
 #include "4vahead.h"
 
@@ -61,6 +63,14 @@ uint64_t presentinterval, lastmsc;
 #endif
 
 static void handleevent(XEvent *ev);
+static void sizebuffers(void);
+static void settitle(void);
+
+/* -control: Up/Down cycle through these; key presses are queued and applied between frames. */
+static const char *colors[] = {"Red", "Orange", "Yellow", "LightGreen", "Cyan",
+                               "DeepSkyBlue", "Violet", "HotPink", "White"};
+#define NCOLORS ((int)(sizeof colors / sizeof colors[0]))
+static int colorindex=-1, objsteps, colorsteps, quitrequested;
 
 /* Sub-pixel copies of the clipped lines, used for anti-aliasing. */
 typedef struct {
@@ -79,11 +89,22 @@ XTriangle *mytris;
 
 /* code */
 
+#ifdef HAVE_XRENDER
+static void makepen(void) {
+  XColor c;
+  XRenderColor rc;
+
+  if (mypen) XRenderFreePicture(mydisplay,mypen);
+  c.pixel=FRC;
+  XQueryColor(mydisplay,mycolmap,&c);
+  rc.red=c.red; rc.green=c.green; rc.blue=c.blue; rc.alpha=0xffff;
+  mypen=XRenderCreateSolidFill(mydisplay,&rc);
+}
+#endif
+
 static void setupaa(void) {
 #ifdef HAVE_XRENDER
   int evbase, errbase;
-  XColor c;
-  XRenderColor rc;
 
   if (!XRenderQueryExtension(mydisplay,&evbase,&errbase) ||
       !(myfmt=XRenderFindVisualFormat(mydisplay,DefaultVisual(mydisplay,DefaultScreen(mydisplay))))) {
@@ -92,15 +113,7 @@ static void setupaa(void) {
     return;
   }
   mymaskfmt=XRenderFindStandardFormat(mydisplay,PictStandardA8);
-  c.pixel=FRC;
-  XQueryColor(mydisplay,mycolmap,&c);
-  rc.red=c.red; rc.green=c.green; rc.blue=c.blue; rc.alpha=0xffff;
-  mypen=XRenderCreateSolidFill(mydisplay,&rc);
-  if ((myfseg=(fseg_t *)malloc((coptr->numlines)*sizeof(fseg_t)))==NULL ||
-      (mytris=(XTriangle *)malloc(2*(coptr->numlines)*sizeof(XTriangle)))==NULL) {
-    fprintf(stderr,"4VA: could not allocate anti-aliasing structures.\n");
-    exit(-1);
-  }
+  makepen();
 #else
   fprintf(stderr,"4VA: built without XRender, -aa disabled.\n");
   AA=0;
@@ -345,6 +358,15 @@ static void handleevent(XEvent *ev) {
       if (ev->xconfigure.width != MAXX || ev->xconfigure.height != MAXY)
         resize(ev->xconfigure.width, ev->xconfigure.height);
       break;
+    case KeyPress:
+      switch (XLookupKeysym(&ev->xkey,0)) {
+        case XK_Right: objsteps++; break;
+        case XK_Left: objsteps--; break;
+        case XK_Up: colorsteps++; break;
+        case XK_Down: colorsteps--; break;
+        case XK_q: case XK_Escape: quitrequested=1; break;
+      }
+      break;
     case Expose:
       /* -rpresent repaints on its next frame. */
       if (RENDER == RENDER_BUFFER)
@@ -383,7 +405,6 @@ void g_checkevents(void) {
 
 void g_startup(void) {
 
-  char name[255];
   XColor theRGBColor, theHardwareColor;
   XSizeHints myhints;
   int theStatus;
@@ -430,29 +451,20 @@ void g_startup(void) {
 
   mydb=mywin; /*drawable for lines same as window*/
   /* Set the name of the window to the object name, then map the window. */
-  if (TITLEBAR) {
-    sprintf(name,"4va v%s",VER_STRING);
-    XStoreName(mydisplay,mywin,name);
-  }
-  XSelectInput(mydisplay, mywin, StructureNotifyMask|ExposureMask);
+  settitle();
+  XSelectInput(mydisplay, mywin, StructureNotifyMask|ExposureMask|(CONTROL ? KeyPressMask : 0));
   printf(" Mapping window.\n");
   XMapRaised(mydisplay,mywin);
   XSync(mydisplay,0);
   XSetForeground(mydisplay,mygc,FRC);
   XSetBackground(mydisplay,mygc,BKC);
   if (RENDER == RENDER_DIRECT) XClearWindow(mydisplay,mywin);
-  /* Go ahead and allocate the segment struct for the buffered lines. */
-  if ((myseg= (XSegment *)malloc((coptr->numlines)*sizeof(XSegment)))==NULL) {
-    fprintf(stderr,"4VA: could not allocate segment stucture.\n");
-    exit(-1);
-  }
-  if ((myeraseseg= (XSegment *)malloc((coptr->numlines)*sizeof(XSegment)))==NULL) {
-    fprintf(stderr,"4VA: could not allocate erase segment structure.\n");
-    exit(-1);
-  }
-
   if (RENDER == RENDER_PRESENT) setuppresent();
   if (AA) setupaa();
+  /* Go ahead and allocate the segment structs for the buffered lines. */
+  sizebuffers();
+  for (colorindex=NCOLORS-1; colorindex>=0 && strcasecmp(FRCname,colors[colorindex]); colorindex--)
+    ;
 
   /* Fix the window size global variables; later resizes arrive as ConfigureNotify. */
   g_fixcoords();
@@ -460,6 +472,73 @@ void g_startup(void) {
 
 void g_shutdown(void) {
   XCloseDisplay(mydisplay);
+}
+
+static void sizebuffers(void) {
+  /* Line buffers follow the current object's line count. */
+  size_t n=coptr->numlines ? coptr->numlines : 1;
+
+  if (!(myseg=(XSegment *)realloc(myseg,n*sizeof(XSegment))) ||
+      !(myeraseseg=(XSegment *)realloc(myeraseseg,n*sizeof(XSegment))))
+    goto nomem;
+  if (AA) {
+    if (!(myfseg=(fseg_t *)realloc(myfseg,n*sizeof(fseg_t)))) goto nomem;
+#ifdef HAVE_XRENDER
+    if (!(mytris=(XTriangle *)realloc(mytris,2*n*sizeof(XTriangle)))) goto nomem;
+#endif
+  }
+  return;
+nomem:
+  fprintf(stderr,"4VA: could not allocate line buffers.\n");
+  exit(-1);
+}
+
+static void settitle(void) {
+  char name[600];
+  const char *base;
+
+  if (!TITLEBAR) return;
+  if (CONTROL) {
+    base=strrchr(objfiles[curobj],'/');
+    base=base ? base+1 : objfiles[curobj];
+    snprintf(name,sizeof name,"4va v%s - %s [%d/%d]",VER_STRING,base,curobj+1,nobjfiles);
+  } else {
+    snprintf(name,sizeof name,"4va v%s",VER_STRING);
+  }
+  XStoreName(mydisplay,mywin,name);
+}
+
+static void setcolor(const char *cname) {
+  XColor exact, hw;
+
+  if (!XLookupColor(mydisplay,mycolmap,cname,&exact,&hw) || !XAllocColor(mydisplay,mycolmap,&hw))
+    return;
+  FRC=hw.pixel;
+  snprintf(FRCname,sizeof FRCname,"%s",cname);
+  XSetForeground(mydisplay,mygc,FRC);
+#ifdef HAVE_XRENDER
+  if (AA) makepen();
+#endif
+}
+
+void g_objectchanged(void) {
+  sizebuffers();
+  nseg=neraseseg=0;
+  if (RENDER == RENDER_DIRECT) XClearWindow(mydisplay,mywin);
+  settitle();
+}
+
+int g_controls(int *objstep) {
+  /* Apply queued -control keys between frames; returns 1 if quit was requested. */
+  if (colorsteps) {
+    if (colorindex < 0) colorindex=colorsteps > 0 ? -1 : NCOLORS;
+    colorindex=((colorindex+colorsteps) % NCOLORS + NCOLORS) % NCOLORS;
+    setcolor(colors[colorindex]);
+    colorsteps=0;
+  }
+  *objstep=objsteps;
+  objsteps=0;
+  return quitrequested;
 }
 
 int g_vsync(int fps, double hz) {

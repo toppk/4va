@@ -35,7 +35,7 @@ transfParams emptyparams;
 int MAXX, MAXY, CENX, CENY, SIZY;
 long unsigned FRC, BKC;
 char FRCname[512], BKCname[512];
-int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS, NODAEMON, RENDER, AA;
+int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS, NODAEMON, RENDER, AA, CONTROL;
 float LWIDTH;
 float w_dist, z_dist, rxy, rxz, ryz, rxw, ryw, rzw, SCL;
 char displayname[512];
@@ -55,6 +55,8 @@ void phelp() {
    printf("  -cw              clear window, don't draw over lines    \n");
    printf("                   (-rdirect only)                        \n");
    printf("  -nd              no daemon, run in the foreground       \n");
+   printf("  -control         keys in the window: left/right object, \n");
+   printf("                   up/down line color, q or Esc quit      \n");
    printf("  -zd(distance)    specify z and w distance for           \n");
    printf("  -wd(distance)    perspective. Default is 430.0.         \n");
    printf("  -lc (colorname)  set line color: like -lc LightGreen    \n");
@@ -67,7 +69,7 @@ void phelp() {
    printf("                   refresh (default), n frames/second    \n");
    printf("  -h or -?         get this help                          \n");
    printf("\n");
-   printf("  recommended:     4va -nd -rpresent -aa (datafile)       \n");
+   printf("  recommended:     4va -nd -rpresent -aa -control (datafile|dir)\n");
    printf("\n");
 }
 
@@ -101,6 +103,7 @@ void setupdefaults() {
   NODAEMON=0;
   RENDER=RENDER_BUFFER;
   AA=0;
+  CONTROL=0;
   LWIDTH=0;
   strcpy(displayname,"unix:0");
   if (getenv("DISPLAY")) strcpy(displayname,getenv("DISPLAY"));
@@ -229,6 +232,10 @@ void handleclo(int argc, char **argv)
        NODAEMON=1;
        ook=1;
      }
+     if (!strcmp(opt2,"-control")) {
+       CONTROL=1;
+       ook=1;
+     }
      if (!strncmp(opt2,"-cw",3)) {
        CLRWIN=1;
        ook=1;
@@ -272,6 +279,7 @@ int main(int argc, char **argv)
   struct timespec ts;
   double hz;
   int vsync;
+  int objstep;
    
   printf("\n4va v%s, by Matt Welsh\n",VER_STRING);
 
@@ -337,6 +345,11 @@ int main(int argc, char **argv)
       /* child does his little ol' thing... */
         next_ns = now_ns();
         while (done==0) {
+           if (CONTROL) {
+             if (g_controls(&objstep)) break;
+             if (objstep && loadobject(curobj + objstep, objstep > 0 ? 1 : -1) >= 0)
+               g_objectchanged();
+           }
            /* Transform object and buffer the lines */
            project(coptr);
            /* Check any "events" that your graphics system may use. For instance,

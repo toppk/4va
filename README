@@ -7,12 +7,13 @@ object files are in data/, e.g. "build/4va data/hcube.4vd".
 
 Recommended: on a modern display, run
 
-  build/4va -nd -rpresent -aa data/hcube.4vd
+  build/4va -nd -rpresent -aa -control data
 
-to stay in the foreground, show frames in sync with the display and
-draw anti-aliased lines. These aren't the defaults, which stay close to
-the original behavior; -rpresent and -aa fall back with a warning if
-unsupported.
+to stay in the foreground, show frames in sync with the display, draw
+anti-aliased lines, and browse the objects in data/ from the window
+(left/right: object, up/down: line color, q: quit). These aren't the
+defaults, which stay close to the original behavior; -rpresent and -aa
+fall back with a warning if unsupported.
 
 Please send any questions or bugs to mdw1@crux2.cit.cornell.edu.
 
