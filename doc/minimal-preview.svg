@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1040" viewBox="0 0 1000 1040">
+<rect width="1000" height="1040" fill="#08101c"/>
+<g fill="#e3ecfa" font-family="sans-serif"><text x="40" y="45" font-size="26">SMALL / four-dimensional structures</text>
+<text x="40" y="74" font-size="14">Two orthographic views of each object; the second rotates XW and YZ.</text></g>
+<path d="M428.99,155.12L530.46,176.12 M530.46,176.12L530.46,97.24 M530.46,97.24L471.01,133.09 M471.01,133.09L471.01,200.88 M471.01,200.88L369.54,179.88 M369.54,179.88L369.54,258.76 M369.54,258.76L428.99,222.91 M428.99,222.91L428.99,155.12" fill="none" stroke="#8cdfff" stroke-width="1.7"/>
+<circle cx="428.99" cy="155.12" r="3" fill="#8cdfff"/>
+<circle cx="530.46" cy="176.12" r="3" fill="#8cdfff"/>
+<circle cx="530.46" cy="97.24" r="3" fill="#8cdfff"/>
+<circle cx="471.01" cy="133.09" r="3" fill="#8cdfff"/>
+<circle cx="471.01" cy="200.88" r="3" fill="#8cdfff"/>
+<circle cx="369.54" cy="179.88" r="3" fill="#8cdfff"/>
+<circle cx="369.54" cy="258.76" r="3" fill="#8cdfff"/>
+<circle cx="428.99" cy="222.91" r="3" fill="#8cdfff"/>
+<path d="M864.37,113.23L910.39,163.17 M910.39,163.17L842.08,123.13 M842.08,123.13L815.11,208.36 M815.11,208.36L735.63,242.77 M735.63,242.77L689.61,192.83 M689.61,192.83L757.92,232.87 M757.92,232.87L784.89,147.64 M784.89,147.64L864.37,113.23" fill="none" stroke="#8cdfff" stroke-width="1.7"/>
+<circle cx="864.37" cy="113.23" r="3" fill="#8cdfff"/>
+<circle cx="910.39" cy="163.17" r="3" fill="#8cdfff"/>
+<circle cx="842.08" cy="123.13" r="3" fill="#8cdfff"/>
+<circle cx="815.11" cy="208.36" r="3" fill="#8cdfff"/>
+<circle cx="735.63" cy="242.77" r="3" fill="#8cdfff"/>
+<circle cx="689.61" cy="192.83" r="3" fill="#8cdfff"/>
+<circle cx="757.92" cy="232.87" r="3" fill="#8cdfff"/>
+<circle cx="784.89" cy="147.64" r="3" fill="#8cdfff"/>
+<g fill="#e3ecfa" font-family="monospace"><text x="40" y="178" font-size="18">axiswalk.4vd</text><text x="40" y="204" font-size="13">8 vertices / 8 edges</text></g>
+<path d="M378.25,458.92L521.75,488.63 M521.75,488.63L521.75,377.08 M521.75,377.08L378.25,347.37 M378.25,347.37L378.25,458.92 M492.04,344.71L407.96,395.41 M407.96,395.41L407.96,491.29 M407.96,491.29L492.04,440.59 M492.04,440.59L492.04,344.71 M378.25,458.92L492.04,344.71 M521.75,488.63L407.96,395.41 M521.75,377.08L407.96,491.29 M378.25,347.37L492.04,440.59" fill="none" stroke="#ffc28c" stroke-width="1.7"/>
+<circle cx="378.25" cy="458.92" r="3" fill="#ffc28c"/>
+<circle cx="521.75" cy="488.63" r="3" fill="#ffc28c"/>
+<circle cx="521.75" cy="377.08" r="3" fill="#ffc28c"/>
+<circle cx="378.25" cy="347.37" r="3" fill="#ffc28c"/>
+<circle cx="492.04" cy="344.71" r="3" fill="#ffc28c"/>
+<circle cx="407.96" cy="395.41" r="3" fill="#ffc28c"/>
+<circle cx="407.96" cy="491.29" r="3" fill="#ffc28c"/>
+<circle cx="492.04" cy="440.59" r="3" fill="#ffc28c"/>
+<path d="M815.76,411.00L880.85,481.62 M880.85,481.62L784.24,425.00 M784.24,425.00L719.15,354.38 M719.15,354.38L815.76,411.00 M875.27,333.40L837.13,453.93 M837.13,453.93L724.73,502.60 M724.73,502.60L762.87,382.07 M762.87,382.07L875.27,333.40 M815.76,411.00L875.27,333.40 M880.85,481.62L837.13,453.93 M784.24,425.00L724.73,502.60 M719.15,354.38L762.87,382.07" fill="none" stroke="#ffc28c" stroke-width="1.7"/>
+<circle cx="815.76" cy="411.00" r="3" fill="#ffc28c"/>
+<circle cx="880.85" cy="481.62" r="3" fill="#ffc28c"/>
+<circle cx="784.24" cy="425.00" r="3" fill="#ffc28c"/>
+<circle cx="719.15" cy="354.38" r="3" fill="#ffc28c"/>
+<circle cx="875.27" cy="333.40" r="3" fill="#ffc28c"/>
+<circle cx="837.13" cy="453.93" r="3" fill="#ffc28c"/>
+<circle cx="724.73" cy="502.60" r="3" fill="#ffc28c"/>
+<circle cx="762.87" cy="382.07" r="3" fill="#ffc28c"/>
+<g fill="#e3ecfa" font-family="monospace"><text x="40" y="418" font-size="18">orthogates.4vd</text><text x="40" y="444" font-size="13">8 vertices / 12 edges</text></g>
+<path d="M406.83,646.64L500.93,666.12 M406.83,646.64L406.83,585.68 M406.83,585.68L500.93,605.16 M500.93,605.16L500.93,666.12 M406.83,646.64L360.89,674.35 M360.89,674.35L454.99,693.82 M454.99,693.82L500.93,666.12 M406.83,646.64L406.83,699.04 M406.83,699.04L500.93,718.52 M500.93,718.52L500.93,666.12 M406.83,646.64L433.36,635.59 M433.36,635.59L527.46,655.07 M527.46,655.07L500.93,666.12" fill="none" stroke="#a9e9b2" stroke-width="1.7"/>
+<circle cx="406.83" cy="646.64" r="3" fill="#a9e9b2"/>
+<circle cx="500.93" cy="666.12" r="3" fill="#a9e9b2"/>
+<circle cx="406.83" cy="585.68" r="3" fill="#a9e9b2"/>
+<circle cx="500.93" cy="605.16" r="3" fill="#a9e9b2"/>
+<circle cx="360.89" cy="674.35" r="3" fill="#a9e9b2"/>
+<circle cx="454.99" cy="693.82" r="3" fill="#a9e9b2"/>
+<circle cx="406.83" cy="699.04" r="3" fill="#a9e9b2"/>
+<circle cx="500.93" cy="718.52" r="3" fill="#a9e9b2"/>
+<circle cx="433.36" cy="635.59" r="3" fill="#a9e9b2"/>
+<circle cx="527.46" cy="655.07" r="3" fill="#a9e9b2"/>
+<path d="M790.08,629.64L832.76,675.96 M790.08,629.64L737.28,598.70 M737.28,598.70L779.96,645.02 M779.96,645.02L832.76,675.96 M790.08,629.64L769.23,695.51 M769.23,695.51L811.92,741.82 M811.92,741.82L832.76,675.96 M790.08,629.64L728.65,656.24 M728.65,656.24L771.33,702.55 M771.33,702.55L832.76,675.96 M790.08,629.64L868.05,594.12 M868.05,594.12L910.74,640.44 M910.74,640.44L832.76,675.96" fill="none" stroke="#a9e9b2" stroke-width="1.7"/>
+<circle cx="790.08" cy="629.64" r="3" fill="#a9e9b2"/>
+<circle cx="832.76" cy="675.96" r="3" fill="#a9e9b2"/>
+<circle cx="737.28" cy="598.70" r="3" fill="#a9e9b2"/>
+<circle cx="779.96" cy="645.02" r="3" fill="#a9e9b2"/>
+<circle cx="769.23" cy="695.51" r="3" fill="#a9e9b2"/>
+<circle cx="811.92" cy="741.82" r="3" fill="#a9e9b2"/>
+<circle cx="728.65" cy="656.24" r="3" fill="#a9e9b2"/>
+<circle cx="771.33" cy="702.55" r="3" fill="#a9e9b2"/>
+<circle cx="868.05" cy="594.12" r="3" fill="#a9e9b2"/>
+<circle cx="910.74" cy="640.44" r="3" fill="#a9e9b2"/>
+<g fill="#e3ecfa" font-family="monospace"><text x="40" y="658" font-size="18">fourbook.4vd</text><text x="40" y="684" font-size="13">10 vertices / 13 edges</text></g>
+<path d="M551.47,919.00L481.35,829.47 M481.35,829.47L367.91,834.65 M367.91,834.65L367.91,927.37 M367.91,927.37L481.35,979.51 M481.35,979.51L551.47,919.00 M390.55,933.84L498.10,908.85 M431.63,973.56L498.10,829.15 M498.10,908.85L431.63,844.60 M498.10,829.15L390.55,933.84 M431.63,844.60L431.63,973.56 M551.47,919.00L390.55,933.84 M481.35,829.47L431.63,973.56 M367.91,834.65L498.10,908.85 M367.91,927.37L498.10,829.15 M481.35,979.51L431.63,844.60" fill="none" stroke="#c8b0ff" stroke-width="1.7"/>
+<circle cx="551.47" cy="919.00" r="3" fill="#c8b0ff"/>
+<circle cx="481.35" cy="829.47" r="3" fill="#c8b0ff"/>
+<circle cx="367.91" cy="834.65" r="3" fill="#c8b0ff"/>
+<circle cx="367.91" cy="927.37" r="3" fill="#c8b0ff"/>
+<circle cx="481.35" cy="979.51" r="3" fill="#c8b0ff"/>
+<circle cx="390.55" cy="933.84" r="3" fill="#c8b0ff"/>
+<circle cx="431.63" cy="973.56" r="3" fill="#c8b0ff"/>
+<circle cx="498.10" cy="908.85" r="3" fill="#c8b0ff"/>
+<circle cx="498.10" cy="829.15" r="3" fill="#c8b0ff"/>
+<circle cx="431.63" cy="844.60" r="3" fill="#c8b0ff"/>
+<path d="M846.02,947.94L749.25,875.36 M749.25,875.36L722.61,834.07 M722.61,834.07L802.92,881.13 M802.92,881.13L879.19,951.50 M879.19,951.50L846.02,947.94 M773.03,983.23L775.10,849.27 M716.08,957.06L868.53,808.82 M775.10,849.27L867.26,891.61 M868.53,808.82L773.03,983.23 M867.26,891.61L716.08,957.06 M846.02,947.94L773.03,983.23 M749.25,875.36L716.08,957.06 M722.61,834.07L775.10,849.27 M802.92,881.13L868.53,808.82 M879.19,951.50L867.26,891.61" fill="none" stroke="#c8b0ff" stroke-width="1.7"/>
+<circle cx="846.02" cy="947.94" r="3" fill="#c8b0ff"/>
+<circle cx="749.25" cy="875.36" r="3" fill="#c8b0ff"/>
+<circle cx="722.61" cy="834.07" r="3" fill="#c8b0ff"/>
+<circle cx="802.92" cy="881.13" r="3" fill="#c8b0ff"/>
+<circle cx="879.19" cy="951.50" r="3" fill="#c8b0ff"/>
+<circle cx="773.03" cy="983.23" r="3" fill="#c8b0ff"/>
+<circle cx="716.08" cy="957.06" r="3" fill="#c8b0ff"/>
+<circle cx="775.10" cy="849.27" r="3" fill="#c8b0ff"/>
+<circle cx="868.53" cy="808.82" r="3" fill="#c8b0ff"/>
+<circle cx="867.26" cy="891.61" r="3" fill="#c8b0ff"/>
+<g fill="#e3ecfa" font-family="monospace"><text x="40" y="898" font-size="18">pentalift.4vd</text><text x="40" y="924" font-size="13">10 vertices / 15 edges</text></g>
+</svg>
