@@ -68,6 +68,8 @@ void phelp() {
    printf("                   refresh (default), n frames/second    \n");
    printf("  -h or -?         get this help                          \n");
    printf("\n");
+   printf("  recommended:     4va -nd -rpresent -aa (datafile)       \n");
+   printf("\n");
 }
 
 void optbarf(char *o)

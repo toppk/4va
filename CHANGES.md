@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Recommended settings
+For the best results on a modern display, run
+`4va -nd -rpresent -aa <object>`: foreground, vsync'd and anti-aliased.
+These are not the defaults, which stay close to the original behavior;
+`-rpresent` and `-aa` fall back with a warning where unsupported.
+
 ### New
 - `-rbuffer` (default) draws each frame into an off-screen pixmap and copies
   it to the window in one step, removing flicker, half-drawn frames and

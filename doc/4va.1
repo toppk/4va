@@ -172,6 +172,15 @@ you can set all the w values to 0.0. Each line specifies the points between
 which the line extends. In the above example, we have one line between point
 0 and point 1 (notice that numbering starts with 0). 
 .sp
+.SH RECOMMENDED SETTINGS
+The defaults stay close to the original behavior. On a modern display
+the best results come from
+.IP
+\fB4va -nd -rpresent -aa\fP \fI<object-file>\fP
+.P
+which runs in the foreground, shows frames in sync with the display, and
+draws anti-aliased lines. \fB-rpresent\fP and \fB-aa\fP fall back with a
+warning where unsupported.
 .SH NOTES
 4va allocates memory for objects dynamically. If 4va runs out of memory
 it will exit with a return code of -1 and print a "malloc" error
