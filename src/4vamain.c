@@ -33,7 +33,6 @@
 object *coptr;
 transfParams emptyparams;
 int MAXX, MAXY, CENX, CENY, SIZY;
-char filename[512];
 long unsigned FRC, BKC;
 char FRCname[512], BKCname[512];
 int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS, NODAEMON, RENDER, AA;
@@ -42,7 +41,7 @@ float w_dist, z_dist, rxy, rxz, ryz, rxw, ryw, rzw, SCL;
 char displayname[512];
 
 void phelp() {
-   printf("  usage: 4va [datafile] [options]\n");
+   printf("  usage: 4va [datafile|directory ...] [options]\n");
    printf("  list of options:\n");
    printf("  -xy -xz -yz -xw -yw -zw (angle after each, like -xw4.5) \n");  
    printf("    Will rotate object through specified plane each cycle.\n");
@@ -72,7 +71,7 @@ void phelp() {
    printf("\n");
 }
 
-void optbarf(char *o)
+void optbarf(const char *o)
 /* Barfs if bad command is given. */
 {
    printf("\n");
@@ -125,12 +124,18 @@ void clearrot() {
   } 
 }
 
+static const char *nextarg(int argc, char **argv, int *i)
+{
+  if (*i + 1 >= argc) optbarf(argv[*i]);
+  return argv[++*i];
+}
+
 void handleclo(int argc, char **argv)
 {
 /* Look for command line options. */
   int i,j;
   int ook; /* Option OK- flag to tell end of loop that option was accepted, and not to barf. */
-  char opt[32], opt2[32];
+  const char *opt2;
 
   if (argc < 2) {
     phelp();
@@ -139,13 +144,12 @@ void handleclo(int argc, char **argv)
 
   for (i=1; i<argc; i++) {
    
-   strcpy(opt,argv[i]);
-   if (opt[0] != '-') {
-     strcpy(filename,opt);
+   opt2=argv[i];
+   if (opt2[0] != '-') {
+     addpath(opt2);
    } else {
      
      ook=0;
-     strcpy(opt2,opt);
     
      if (!strncmp(opt2,"-xy",3)) { 
        clearrot();
@@ -179,13 +183,11 @@ void handleclo(int argc, char **argv)
      }
 
      if (!strncmp(opt2,"-lc",3)) { 
-       strcpy(FRCname,argv[i+1]);
-       i++;
+       snprintf(FRCname,sizeof FRCname,"%s",nextarg(argc,argv,&i));
        ook=1;
      }
      if (!strncmp(opt2,"-bc",3)) { 
-       strcpy(BKCname,argv[i+1]);
-       i++;
+       snprintf(BKCname,sizeof BKCname,"%s",nextarg(argc,argv,&i));
        ook=1;
      }
      if (!strncmp(opt2,"-lw",3)) { 
@@ -236,8 +238,7 @@ void handleclo(int argc, char **argv)
        ook=1;
      }
      if (!strncmp(opt2,"-d",2)) {
-       strcpy(displayname,argv[i+1]);
-       i++;
+       snprintf(displayname,sizeof displayname,"%s",nextarg(argc,argv,&i));
        ook=1;
      }
      if (!strncmp(opt2,"-s",2))  { 
@@ -274,7 +275,7 @@ int main(int argc, char **argv)
    
   printf("\n4va v%s, by Matt Welsh\n",VER_STRING);
 
-  if ((coptr=(object *)malloc(sizeof(object)))==NULL) {
+  if ((coptr=(object *)calloc(1,sizeof(object)))==NULL) {
     perror("malloc");
     exit(-1);
   }
@@ -283,6 +284,11 @@ int main(int argc, char **argv)
   setupdefaults(); 
   /* Get command line options */
   handleclo(argc,argv);
+  if (nobjfiles == 0) {
+    printf("\n4va: no object files given\n");
+    phelp();
+    exit(1);
+  }
   if (AA && RENDER == RENDER_DIRECT) {
     printf("\n4va: -aa requires -rbuffer\n");
     phelp();
@@ -295,7 +301,11 @@ int main(int argc, char **argv)
   coptr->params.sclx=coptr->params.scly=coptr->params.sclz=coptr->params.sclw=SCL;
 
   /* Get the data file. */ 
-  loaddfile(filename);
+  if (loadobject(0, 1) < 0) {
+    fprintf(stderr,"4VA: none of the object files could be loaded.\n");
+    exit(-1);
+  }
+  if (nobjfiles > 1) printf(" %d object files.\n", nobjfiles);
   /* Start up the display */
   g_startup();
 

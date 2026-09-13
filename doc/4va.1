@@ -9,7 +9,7 @@
 \fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-rbuffer | -rdirect | -rpresent] [-aa] [-cw]
 [ -zd \fI<dist>\fP ] [ -wd \fI<dist>\fP ] [ -lc \fI<color>\fP ] 
 [ -bc \fI<color>\fP ] [ -lw \fI<width>\fP ] [ -d \fI<display>\fP ] 
-[ -s \fI<scale>\fP ] [ -fps \fI<rate>\fP ] [ -h | -? ] \fI<object-file>\fP
+[ -s \fI<scale>\fP ] [ -fps \fI<rate>\fP ] [ -h | -? ] \fI<object-file|directory>\fP ...
 .sp
 \fBctorus\fP \fI<x-increments> <y-increments>\fP
 .br
@@ -21,6 +21,9 @@
 4va is a fourth dimensional visualization program for X-Windows. It takes
 as input a file describing an object in up to 4 dimensions and tumbles
 it in a window according to rotation values given on the command line.
+Several object files and directories may be given; a directory stands for
+the .4vd files in it, in name order. 4va shows the first object that
+loads, skipping any file that is missing or malformed.
 .SS Options
 .TP
 \fB-xy, -xz, -yz, -xw, -yw, -zw \fI<angle>\fR

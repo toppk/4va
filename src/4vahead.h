@@ -80,6 +80,10 @@ extern void project(object *obj);
 
 /* 4VaRTN Prototypes ... object routines */
 extern int loaddfile(const char *filename);
+extern void addpath(const char *path);
+extern int loadobject(int start, int step);
+extern char **objfiles;
+extern int nobjfiles;
 
 
 /* 4VaD_ Prototypes ... display */

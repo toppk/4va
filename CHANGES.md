@@ -9,6 +9,9 @@ These are not the defaults, which stay close to the original behavior;
 `-rpresent` and `-aa` fall back with a warning where unsupported.
 
 ### New
+- Several object files and directories can be given on the command line; a
+  directory stands for the `.4vd` files in it, in name order. The first
+  object that loads is shown.
 - `-rbuffer` (default) draws each frame into an off-screen pixmap and copies
   it to the window in one step, removing flicker, half-drawn frames and
   leftover pixels. `-rdirect` keeps the original draw-to-window rendering.
@@ -26,6 +29,12 @@ These are not the defaults, which stay close to the original behavior;
   falls back to `-rbuffer` with a warning.
 
 ### Fixes
+- Command-line arguments of 32 characters or more (such as absolute paths)
+  no longer overflow a fixed-size buffer, and `-lc`, `-bc` or `-d` without a
+  value no longer crash.
+- Object files are validated while loading (counts, coordinates, and line
+  endpoints in range). A missing or malformed file is reported and skipped
+  instead of exiting or crashing, and long `n=` names no longer overflow.
 - The X event queue is now read every frame: resizes come from
   `ConfigureNotify` and exposed areas are repainted, instead of events
   piling up unread.
