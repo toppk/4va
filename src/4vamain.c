@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <time.h>
 #include "4vahead.h"
 
 /* These are things that were kept in 4VCMD before, but needed */
@@ -35,7 +36,7 @@ int MAXX, MAXY, CENX, CENY, SIZY;
 char filename[512];
 long unsigned FRC, BKC;
 char FRCname[512], BKCname[512];
-int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR;
+int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS;
 float w_dist, z_dist, rxy, rxz, ryz, rxw, ryw, rzw, SCL;
 char displayname[512];
 
@@ -55,6 +56,8 @@ void phelp() {
    printf("  -lw(width)       set line width, default=0 (fastest)    \n");
    printf("  -d (display)     set display name: like -d lsd:0        \n");
    printf("  -s(scale)        scaling factor. Default is 200.0.      \n");
+   printf("  -fps(rate)       frame rate: -1 unlocked, 0 display     \n");
+   printf("                   refresh (default), n frames/second    \n");
    printf("  -h or -?         get this help                          \n");
    printf("\n");
 }
@@ -85,6 +88,7 @@ void setupdefaults() {
   CLRWIN=0;
   RESCALE=1;
   TITLEBAR=1;
+  FPS=0;
   strcpy(displayname,"unix:0");
   if (getenv("DISPLAY")) strcpy(displayname,getenv("DISPLAY"));
 }
@@ -198,6 +202,10 @@ void handleclo(int argc, char **argv)
        CLRWIN=1;
        ook=1;
      }
+     if (!strncmp(opt2,"-fps",4)) {
+       if (sscanf(opt2,"-fps%d",&FPS) != 1 || FPS < -1) optbarf(opt2);
+       ook=1;
+     }
      if (!strncmp(opt2,"-d",2)) {
        strcpy(displayname,argv[i+1]);
        i++;
@@ -218,11 +226,21 @@ void handleclo(int argc, char **argv)
 }
      
 
+static long long now_ns(void)
+{
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+}
+
 int main(int argc, char **argv)
 {
   int i,j,n,done=0;
   char p,c;
   int mypid;
+  long long period_ns=0, next_ns, cur_ns;
+  struct timespec ts;
+  double hz;
    
   printf("\n4va v%s, by Matt Welsh\n",VER_STRING);
 
@@ -245,6 +263,17 @@ int main(int argc, char **argv)
   /* Start up the display */
   g_startup();
 
+  if (FPS == 0) {
+    hz = g_refreshrate();
+    period_ns = (long long)(1e9 / hz);
+    printf(" Frame rate %.2f fps (display refresh).\n", hz);
+  } else if (FPS > 0) {
+    period_ns = 1000000000LL / FPS;
+    printf(" Frame rate %d fps.\n", FPS);
+  } else {
+    printf(" Frame rate unlocked.\n");
+  }
+
   /* Fork myself off... */
   printf(" Forking...");
   mypid=fork();
@@ -255,7 +284,8 @@ int main(int argc, char **argv)
       break;
     case 0:
       /* child does his little ol' thing... */
-        while (done==0) { 
+        next_ns = now_ns();
+        while (done==0) {
            /* Transform object and buffer the lines */
            project(coptr);
            /* Check any "events" that your graphics system may use. For instance,
@@ -265,6 +295,18 @@ int main(int argc, char **argv)
            g_cleardisplay();
            /* Put the lines to the window */
            g_putlines();
+           if (period_ns) {
+             next_ns += period_ns;
+             cur_ns = now_ns();
+             /* If a frame ran long, resync rather than bursting to catch up. */
+             if (next_ns < cur_ns) {
+               next_ns = cur_ns;
+             } else {
+               ts.tv_sec = next_ns / 1000000000LL;
+               ts.tv_nsec = next_ns % 1000000000LL;
+               clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &ts, NULL);
+             }
+           }
            /* Rotate the object */
            coptr->params.rxy += rxy;
            coptr->params.rxz += rxz;

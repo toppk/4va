@@ -9,7 +9,7 @@
 \fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-cw] 
 [ -zd \fI<dist>\fP ] [ -wd \fI<dist>\fP ] [ -lc \fI<color>\fP ] 
 [ -bc \fI<color>\fP ] [ -lw \fI<width>\fP ] [ -d \fI<display>\fP ] 
-[ -s \fI<scale>\fP ] [ -h | -? ] \fI<object-file>\fP
+[ -s \fI<scale>\fP ] [ -fps \fI<rate>\fP ] [ -h | -? ] \fI<object-file>\fP
 .sp
 \fBctorus\fP \fI<x-increments> <y-increments>\fP
 .br
@@ -73,6 +73,14 @@ the display \fIunix:0\fP.
 \fB-s \fI<scale>\fR
 Specify the scaling factor for all four dimensions, as in \fB-s150.0\fP.
 The default is 200.0.
+.TP
+\fB-fps \fI<rate>\fR
+Set the animation frame rate, as in \fB-fps10\fP. Since the rotation
+angles are applied once per frame, this also sets the tumbling speed.
+A rate of \fB-1\fP runs unlocked, as fast as the machine allows.
+A rate of \fB0\fP (the default) matches the refresh rate of the display
+the window is on, as reported by XRandR, or 60 if it can't be determined.
+Any positive value runs at that many frames per second.
 .TP
 \fB-h, -?\fR
 Get a listing of 4va's options.

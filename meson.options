@@ -1,0 +1,2 @@
+option('xrandr', type : 'feature', value : 'auto',
+  description : 'Use XRandR to detect the display refresh rate for -fps0')

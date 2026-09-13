@@ -18,6 +18,9 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#ifdef HAVE_XRANDR
+#include <X11/extensions/Xrandr.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,6 +66,7 @@ void g_putlines(void) {
      }
    }
    XDrawSegments(mydisplay,mydb,mygc,myseg,coptr->numlines);
+   XFlush(mydisplay);
 }
 
 void g_fixcoords(void) {
@@ -174,5 +178,39 @@ void g_startup(void) {
 
 void g_shutdown(void) {
   XCloseDisplay(mydisplay);
+}
+
+double g_refreshrate(void) {
+  /* Refresh rate of the monitor the window is on, falling back to 60Hz. */
+  double hz = 0;
+#ifdef HAVE_XRANDR
+  XRRScreenResources *res;
+  XRRCrtcInfo *crtc;
+  XRRModeInfo *m;
+  Window child;
+  int i, j, wx, wy, evbase, errbase, inside;
+  double rate;
+
+  if (XRRQueryExtension(mydisplay, &evbase, &errbase) &&
+      (res = XRRGetScreenResourcesCurrent(mydisplay, parent))) {
+    XTranslateCoordinates(mydisplay, mywin, parent, MAXX/2, MAXY/2, &wx, &wy, &child);
+    for (i = 0; i < res->ncrtc; i++) {
+      if (!(crtc = XRRGetCrtcInfo(mydisplay, res, res->crtcs[i]))) continue;
+      for (j = 0; j < res->nmode; j++) {
+        m = &res->modes[j];
+        if (m->id != crtc->mode || !m->hTotal || !m->vTotal) continue;
+        rate = (double)m->dotClock / ((double)m->hTotal * m->vTotal);
+        if (m->modeFlags & RR_DoubleScan) rate /= 2;
+        if (m->modeFlags & RR_Interlace) rate *= 2;
+        inside = wx >= crtc->x && wx < crtc->x + (int)crtc->width &&
+                 wy >= crtc->y && wy < crtc->y + (int)crtc->height;
+        if (hz == 0 || inside) hz = rate;
+      }
+      XRRFreeCrtcInfo(crtc);
+    }
+    XRRFreeScreenResources(res);
+  }
+#endif
+  return hz > 0 ? hz : 60.0;
 }
 

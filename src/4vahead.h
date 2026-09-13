@@ -64,7 +64,7 @@ extern int CENX, CENY;
 extern int SIZY;
 extern long unsigned FRC, BKC;
 extern char FRCname[512], BKCname[512];
-extern int LTHK, CLRWIN, RESCALE, TITLEBAR;
+extern int LTHK, CLRWIN, RESCALE, TITLEBAR, FPS;
 extern char displayname[512];
 
 /* 4VaPROJ Prototypes ... projection */
@@ -85,3 +85,4 @@ extern void g_fixcoords(void);
 extern void g_checkevents(void);
 extern void g_startup(void);
 extern void g_shutdown(void);
+extern double g_refreshrate(void);
