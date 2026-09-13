@@ -1,5 +1,20 @@
 # Changes
 
+## Unreleased
+
+### New
+- `-rbuffer` (default) draws each frame into an off-screen pixmap and copies
+  it to the window in one step, removing flicker, half-drawn frames and
+  leftover pixels. `-rdirect` keeps the original draw-to-window rendering.
+
+### Fixes
+- The X event queue is now read every frame: resizes come from
+  `ConfigureNotify` and exposed areas are repainted, instead of events
+  piling up unread.
+- Line endpoints are rounded instead of truncated, reducing vertex wobble.
+- Lines are clipped before being sent to X, so extreme perspective no longer
+  overflows X's 16-bit coordinates and draws stray lines across the window.
+
 ## 1.22 — 2026-09-13
 
 ### New

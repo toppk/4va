@@ -6,7 +6,7 @@
 \fI4va, ctorus, cutctorus, 4vdmake\fP
 - 4D object tumbler for X-Windows and object generation programs
 .SH SYNOPSIS
-\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-cw]
+\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-rbuffer | -rdirect] [-cw]
 [ -zd \fI<dist>\fP ] [ -wd \fI<dist>\fP ] [ -lc \fI<color>\fP ] 
 [ -bc \fI<color>\fP ] [ -lw \fI<width>\fP ] [ -d \fI<display>\fP ] 
 [ -s \fI<scale>\fP ] [ -fps \fI<rate>\fP ] [ -h | -? ] \fI<object-file>\fP
@@ -48,11 +48,20 @@ Don't daemonize. Normally 4va forks and the parent exits, leaving the
 animation running in the background. With \fB-nd\fP it stays in the
 foreground, so it can be stopped with an interrupt or run under a debugger.
 .TP
+\fB-rbuffer\fP, \fB-rdirect\fP
+Choose how frames are drawn. With \fB-rbuffer\fP (the default) each frame
+is drawn into an off-screen pixmap and copied to the window in one step,
+so partially drawn frames are never visible. \fB-rdirect\fP is the
+original method: lines are drawn straight onto the window, and the
+previous frame is erased by redrawing it in the background color
+(or with \fB-cw\fP, by clearing the window).
+.TP
 \fB-cw\fP
 Tell 4va to clear the window each cycle with a call to XClearWindow()
 instead of drawing over the old object in the background color. Using
-\fB-cw\fP is nice for larger objects, but for smaller objects 
+\fB-cw\fP is nice for larger objects, but for smaller objects
 letting 4va draw over the lines is faster and doesn't flicker.
+Only meaningful with \fB-rdirect\fP.
 .TP
 \fB-zd \fI<dist>\fR, \fB-wd \fI<dist>\fR
 Specify the viewer's distance, in pixels, along the z and w axes for

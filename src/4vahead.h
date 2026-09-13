@@ -64,7 +64,10 @@ extern int CENX, CENY;
 extern int SIZY;
 extern long unsigned FRC, BKC;
 extern char FRCname[512], BKCname[512];
-extern int LTHK, CLRWIN, RESCALE, TITLEBAR, FPS;
+extern int LTHK, CLRWIN, RESCALE, TITLEBAR, FPS, RENDER;
+
+#define RENDER_DIRECT 0
+#define RENDER_BUFFER 1
 extern char displayname[512];
 
 /* 4VaPROJ Prototypes ... projection */
@@ -79,7 +82,7 @@ extern int loaddfile(const char *filename);
 
 /* 4VaD_ Prototypes ... display */
 extern void g_cleardisplay(void);
-extern void g_bufferline(int x1, int x2, int y1, int y2, int i);
+extern void g_bufferline(float x1, float x2, float y1, float y2);
 extern void g_putlines(void);
 extern void g_fixcoords(void);
 extern void g_checkevents(void);

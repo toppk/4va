@@ -96,7 +96,8 @@ void project(object *obj) {
 /* This function no longer displays the object. It trnasforms all points and buffers the lines.
  * It doesn't draw anything. */
 
-  int i, from, to, x1, y1, x2, y2;
+  int i, from, to;
+  float x1, y1, x2, y2;
   
   for (i=0; i < obj->numpoints; i++) {   
     obj->transpts[i] = transform(obj->pts[i], &obj->params);
@@ -111,11 +112,11 @@ void project(object *obj) {
   for (i=0; i < obj->numlines; i++) {
     from=obj->lns[i].from;
     to=obj->lns[i].to;
-    x1=(int)(obj->transpts[from].x+CENX);
-    y1=(int)(SIZY-(obj->transpts[from].y+CENY));
-    x2=(int)(obj->transpts[to].x+CENX);
-    y2=(int)(SIZY-(obj->transpts[to].y+CENY));
-    g_bufferline(x1,x2,y1,y2,i);
+    x1=obj->transpts[from].x+CENX;
+    y1=SIZY-(obj->transpts[from].y+CENY);
+    x2=obj->transpts[to].x+CENX;
+    y2=SIZY-(obj->transpts[to].y+CENY);
+    g_bufferline(x1,x2,y1,y2);
   }
 
 }

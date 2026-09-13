@@ -36,7 +36,7 @@ int MAXX, MAXY, CENX, CENY, SIZY;
 char filename[512];
 long unsigned FRC, BKC;
 char FRCname[512], BKCname[512];
-int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS, NODAEMON;
+int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS, NODAEMON, RENDER;
 float w_dist, z_dist, rxy, rxz, ryz, rxw, ryw, rzw, SCL;
 char displayname[512];
 
@@ -48,7 +48,10 @@ void phelp() {
    printf("  -np              no perspective                         \n");
    printf("  -ns              don't rescale if window is resized     \n");
    printf("  -nt              no title bar                           \n");
+   printf("  -rbuffer         draw each frame off-screen (default)   \n");
+   printf("  -rdirect         draw straight to the window (classic)  \n");
    printf("  -cw              clear window, don't draw over lines    \n");
+   printf("                   (-rdirect only)                        \n");
    printf("  -nd              no daemon, run in the foreground       \n");
    printf("  -zd(distance)    specify z and w distance for           \n");
    printf("  -wd(distance)    perspective. Default is 430.0.         \n");
@@ -91,6 +94,7 @@ void setupdefaults() {
   TITLEBAR=1;
   FPS=0;
   NODAEMON=0;
+  RENDER=RENDER_BUFFER;
   strcpy(displayname,"unix:0");
   if (getenv("DISPLAY")) strcpy(displayname,getenv("DISPLAY"));
 }
@@ -198,6 +202,12 @@ void handleclo(int argc, char **argv)
      }
      if (!strncmp(opt2,"-nt",3)) {
        TITLEBAR=0;
+       ook=1;
+     }
+     if (!strncmp(opt2,"-r",2)) {
+       if (!strcmp(opt2,"-rbuffer")) RENDER=RENDER_BUFFER;
+       else if (!strcmp(opt2,"-rdirect")) RENDER=RENDER_DIRECT;
+       else optbarf(opt2);
        ook=1;
      }
      if (!strncmp(opt2,"-nd",3)) {
