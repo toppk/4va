@@ -79,11 +79,57 @@ with Ctrl-C. Live views begin at the files' original orientations; the SVG
 uses fixed oblique poses to reveal more structure immediately.
 
 Regenerate just the preview with `python3 tools/originals.py`, or verify it
-without writing using `python3 tools/originals.py --check`. The script validates
+and compare all ten originals with reconstructed formulas without writing using
+`python3 tools/originals.py --check`. The script validates
 section sizes, coordinates, edge indices, and measures each object's affine
 dimension. It uses the rotation/rank helpers in `tools/minimal.py` and requires
 only Python's standard library. It accepts the original `name=triprism` spelling
 in `tripris.4vd` as well as the usual `n=` field.
+
+## Formula reconstruction and provenance
+
+**The historical `.4vd` files in this collection were not created by
+`tools/originals.py`.** Its formula generator is a modern reconstruction of
+their geometry, not recovered historical authoring code.
+
+Generate a separate set of all ten objects with:
+
+```sh
+python3 tools/originals.py --output-dir /tmp/4va-originals
+python3 tools/originals.py --output-dir /tmp/4va-originals --check
+```
+
+This mode builds coordinates and edges directly from formulas without reading
+the original `.4vd` files. It does not generate a preview or overwrite `data/`.
+The second command verifies the reconstructed files byte for byte without
+writing. The default `--check` instead compares the historical objects with
+the formulas, allowing reordered vertices/edges and coordinate rounding within
+a Euclidean distance of `1e-5`; it also checks the historical preview.
+
+| Objects | Reconstructed recipe |
+| --- | --- |
+| `5cell` | Regular simplex of edge length 1.8, using square-root coordinates in its original orientation. |
+| `hcube` | All combinations of four coordinates ±½. |
+| `16cell` | The eight signed coordinate unit vectors. |
+| `24cell` | Choose two nonzero coordinates, each ±1/√2. |
+| `600cell` | Eight axis points, sixteen points with coordinates ±½, and 96 signed even permutations of `(φ/2, 1/2, 1/(2φ), 0)`, where `φ = (1+√5)/2`. |
+| `tripris` | Cartesian product of two equilateral triangles of side length 1. |
+| `hsph` | Six coordinate-plane circles sampled at 16 equally spaced angles, retaining separate copies of shared axis points. |
+| `ctor`, `ctor2` | A 20 × 20 product of circles, with both edge families or only one. |
+| `sin` | The original sine height formula on a 20 × 20 open grid. |
+
+For the six polytopes, edges join nearest-neighbor vertices. Circle and grid
+edges follow their sample indices. Output preserves the original geometric
+scale, but vertex order, edge order/direction, decimal formatting, and object
+name syntax may differ. In particular, reconstructed `tripris` uses `n=`.
+Geometric equivalence is the target, not a byte-identical historical artifact.
+
+Three original C generators survive: `src/ctorus.c`, `src/cutctorus.c`, and
+`src/4vdmake.c`. Running their executables with `20 20` reproduces `ctor.4vd`,
+`ctor2.4vd`, and `sin.4vd`, respectively, apart from signed-zero formatting in
+the tested build. Their formulas are credited to Matt Welsh. For the other
+seven, the formulas and connectivity were verified against the stored files;
+the original authoring tools or manual processes have not been recovered.
 
 The original objects and generators are part of Matt Welsh's 4va distribution;
 see the repository's license and original source notices.
