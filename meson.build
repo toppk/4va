@@ -7,12 +7,15 @@ m_dep = cc.find_library('m', required : false)
 x11_dep = dependency('x11')
 
 executable('4va',
-  '4vamain.c', '4vaproj.c', '4vartn.c', '4vad_x.c',
+  'src/4vamain.c', 'src/4vaproj.c', 'src/4vartn.c', 'src/4vad_x.c',
   dependencies : [m_dep, x11_dep],
   install : true)
 
 foreach prog : ['ctorus', 'cutctorus', '4vdmake']
-  executable(prog, prog + '.c',
+  executable(prog, 'src' / prog + '.c',
     dependencies : m_dep,
     install : true)
 endforeach
+
+install_man('doc/4va.1')
+install_subdir('data', install_dir : get_option('datadir') / '4va', strip_directory : true)

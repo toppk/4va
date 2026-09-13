@@ -1,9 +1,9 @@
 This is 4va, the 4th dimensional graphics viewer for X-Windows.
-Please see the man page "4va.man" for details (to format it, use
-the command "nroff -man 4va.man | ul").
+Please see the man page "doc/4va.1" for details (to format it, use
+the command "nroff -man doc/4va.1 | ul").
 
-All you gotta go is unpack the tar file and issue "make". It should
-work, it's very simple. It even works on Linux. :)
+Build with "meson setup build && meson compile -C build". Sample
+object files are in data/, e.g. "build/4va data/hcube.4vd".
 
 Please send any questions or bugs to mdw1@crux2.cit.cornell.edu.
 
