@@ -1,0 +1,15 @@
+Title:          4va
+Version:        1.21
+Description:    Four-Dimensional graphics tumbler for X-Windows
+Author:         Matt Welsh, mdw1@crux2.cit.cornell.edu
+		+1 607 253 2737
+Maintained-by:  mdw1@crux2.cit.cornell.edu
+Maintained-at:  sunsite.unc.edu
+Platforms:      Most UNIX systems running X-Windows. Tested on DG/UX 5.4.2
+		AIX 2.2.1, and Linux. Written using K&R (old) style C;
+		very simple X-Windows app; should compile on most anything.
+Copying-Policy: "Freely Redistributable" as long as the original copyright
+		notice is kept intact and the original author is credited
+		if this work is used in other programs. Not to be sold
+		under any circumstances; (c)1992 Matt Welsh.
+Keywords:       4va hyper hcube 4d graphics fourd 

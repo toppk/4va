@@ -1,0 +1,148 @@
+'/" This is the man page for 4va, by Matt Welsh.
+'/" To format this document, use nroff -man 4va.man | ul.
+'/" mdw1@crux2.cit.cornell.edu
+.TH 4va 1 X11R4
+.SH NAME
+\fI4va, ctorus, cutctorus, 4vdmake\fP
+- 4D object tumbler for X-Windows and object generation programs
+.SH SYNOPSIS
+\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-cw] 
+[ -zd \fI<dist>\fP ] [ -wd \fI<dist>\fP ] [ -lc \fI<color>\fP ] 
+[ -bc \fI<color>\fP ] [ -lw \fI<width>\fP ] [ -d \fI<display>\fP ] 
+[ -s \fI<scale>\fP ] [ -h | -? ] \fI<object-file>\fP
+.sp
+\fBctorus\fP \fI<x-increments> <y-increments>\fP
+.br
+\fBcutctorus\fP \fI<x-increments> <y-increments>\fP
+.sp
+\fB4vdmake\fP \fI<x-grid-size> <y-grid-size>\fP
+.sp
+.SH DESCRIPTION
+4va is a fourth dimensional visualization program for X-Windows. It takes
+as input a file describing an object in up to 4 dimensions and tumbles
+it in a window according to rotation values given on the command line.
+.SS Options
+.TP
+\fB-xy, -xz, -yz, -xw, -yw, -zw \fI<angle>\fR
+Specify the amount of rotation each cycle in each of the 6 planes
+(x-y, x-z, and so on). The angle is given in degrees and appended
+directly to the option, as in \fB-xw4.5\fP.
+If any of these options are set on the command line, the defaults are
+cleared. The defaults are -xz0.6, -xw0.6, and -yw0.45.
+.TP
+\fB-np\fP
+Tell 4va not to do perspective. Normally perspective is done on both
+the z and w axes.
+.TP
+\fB-ns\fP
+Don't rescale the object in the window if the window is resized. Normally,
+if the window is resized, the object is rescaled in proportion to the new
+window size. Specifying \fB-ns\fP turns this off.
+.TP
+\fB-nt\fP
+Don't set a name for the title bar. On some window managers, this will
+suppress a title bar even being displayed on the window. 
+.TP
+\fB-cw\fP
+Tell 4va to clear the window each cycle with a call to XClearWindow()
+instead of drawing over the old object in the background color. Using
+\fB-cw\fP is nice for larger objects, but for smaller objects 
+letting 4va draw over the lines is faster and doesn't flicker.
+.TP
+\fB-zd \fI<dist>\fR, \fB-wd \fI<dist>\fR
+Specify the viewer's distance, in pixels, along the z and w axes for
+perspective purposes. Naturally this doesn't have much meaning if \fB-np\fP
+is specified. The default is 430.0. Place the number directly after the
+switch, as in \fB-zd400.0\fP.
+.TP
+\fB-lc \fI<color>\fR, \fB-bc \fI<color>\fR
+Specify the names of the foreground (line) and background colors, as in
+\fB-lc LightGreen.\fP
+The defaults are black background with red lines.
+.TP
+\fB-lw \fI<width>\fR
+Specify the width of the object's lines, in pixels. The default is
+a width of 0, which is the hardware-defined fastest line. Example is
+\fB-lw5\fP.
+.TP
+\fB-d \fI<display>\fR
+Specify the display name. 4va first checks the \fB-d\fP switch, then
+the \fIDISPLAY\fP environment variable, then then defaults to
+the display \fIunix:0\fP.
+.TP
+\fB-s \fI<scale>\fR
+Specify the scaling factor for all four dimensions, as in \fB-s150.0\fP.
+The default is 200.0.
+.TP
+\fB-h, -?\fR
+Get a listing of 4va's options.
+.sp 2
+.SS Ctorus, cutctorus, and 4vdmake options
+These three programs are object file generators for 4va. 
+\fBCtorus\fR generates a Clifford Torus with the densities named. For example,
+\fIctorus 20 20\fP will generate a Clifford Torus file with 20 increments 
+around each of the two sets of circles defining the torus (the x-y set and 
+the z-w set).
+.sp
+\fBCutctorus\fP
+is the same as ctorus, except that all of the circles in one
+direction are invisible, making the torus easier to see. 
+.sp
+\fB4vdmake\fP is a "customizable" object generation program that produces 
+objects in three dimensions. The program generates a grid of points and 
+lines on the x and y plane and applies to them a function (defined in the 
+code) for the z value of each coordinate. This is a quick hack to let 4va 
+display 3D functions. It can easily be modified to generate 4D functions. 
+4vdmake fits the grid (with the density on the x and y axes given on the
+command line) into a -1 to 1 square on the x and y axes. 
+.SS Object files
+Object files (usually with the extension .4vd) have the following format:
+.IP
+p={ \fInumber-of-points\fP }
+.IP
+\fI<points...>\fP
+.IP
+l={ \fInumber-of-lines\fP }
+.IP
+\fI<lines...>\fP
+.IP
+n=\fIname-of-object\fP
+.sp
+.P
+For example, a simple object file for a single line might look like
+.IP 
+p={2}
+.br
+1.0 1.0 1.0 1.0
+.br
+-1.0 -1.0 -1.0 -1.0
+.br
+l={1}
+.br
+0 1
+.br
+n=StupidLine
+.P
+.sp
+If the \fInumber-of-points\fP and \fInumber-of-lines\fP
+do not match the number of points and lines in their sections, 4va will
+read the incorrect amount of data from the object file and will get confused.
+As you can see, each point specifies the x, y, z, and w coordinates as
+floating-point numbers. If you're only creating a 3D object, for example,
+you can set all the w values to 0.0. Each line specifies the points between
+which the line extends. In the above example, we have one line between point
+0 and point 1 (notice that numbering starts with 0). 
+.sp
+.SH NOTES
+4va allocates memory for objects dynamically. If 4va runs out of memory
+it will exit with a return code of -1 and print a "malloc" error
+message.
+.sp
+4va does not check that the object file that it's reading is well-behaved.
+If your object file is corrupt, 4va may hang. 
+.sp
+4va has worked on every system I've tried it on; it's basic enough that
+it should port to your machine. If you have problems, let me know.
+.SH AUTHOR
+Matt Welsh (welsh@odin.ncssm.edu). Please send me any questions, bugs,
+or suggestions.

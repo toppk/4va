@@ -1,0 +1,11 @@
+This is 4va, the 4th dimensional graphics viewer for X-Windows.
+Please see the man page "4va.man" for details (to format it, use
+the command "nroff -man 4va.man | ul").
+
+All you gotta go is unpack the tar file and issue "make". It should
+work, it's very simple. It even works on Linux. :)
+
+Please send any questions or bugs to mdw1@crux2.cit.cornell.edu.
+
+Share and Enjoy!
+Matt Welsh
