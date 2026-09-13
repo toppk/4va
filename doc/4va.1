@@ -6,7 +6,7 @@
 \fI4va, ctorus, cutctorus, 4vdmake\fP
 - 4D object tumbler for X-Windows and object generation programs
 .SH SYNOPSIS
-\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-cw] 
+\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-cw]
 [ -zd \fI<dist>\fP ] [ -wd \fI<dist>\fP ] [ -lc \fI<color>\fP ] 
 [ -bc \fI<color>\fP ] [ -lw \fI<width>\fP ] [ -d \fI<display>\fP ] 
 [ -s \fI<scale>\fP ] [ -fps \fI<rate>\fP ] [ -h | -? ] \fI<object-file>\fP
@@ -41,7 +41,12 @@ window size. Specifying \fB-ns\fP turns this off.
 .TP
 \fB-nt\fP
 Don't set a name for the title bar. On some window managers, this will
-suppress a title bar even being displayed on the window. 
+suppress a title bar even being displayed on the window.
+.TP
+\fB-nd\fP
+Don't daemonize. Normally 4va forks and the parent exits, leaving the
+animation running in the background. With \fB-nd\fP it stays in the
+foreground, so it can be stopped with an interrupt or run under a debugger.
 .TP
 \fB-cw\fP
 Tell 4va to clear the window each cycle with a call to XClearWindow()

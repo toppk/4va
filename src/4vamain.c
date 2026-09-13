@@ -36,7 +36,7 @@ int MAXX, MAXY, CENX, CENY, SIZY;
 char filename[512];
 long unsigned FRC, BKC;
 char FRCname[512], BKCname[512];
-int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS;
+int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS, NODAEMON;
 float w_dist, z_dist, rxy, rxz, ryz, rxw, ryw, rzw, SCL;
 char displayname[512];
 
@@ -49,6 +49,7 @@ void phelp() {
    printf("  -ns              don't rescale if window is resized     \n");
    printf("  -nt              no title bar                           \n");
    printf("  -cw              clear window, don't draw over lines    \n");
+   printf("  -nd              no daemon, run in the foreground       \n");
    printf("  -zd(distance)    specify z and w distance for           \n");
    printf("  -wd(distance)    perspective. Default is 430.0.         \n");
    printf("  -lc (colorname)  set line color: like -lc LightGreen    \n");
@@ -89,6 +90,7 @@ void setupdefaults() {
   RESCALE=1;
   TITLEBAR=1;
   FPS=0;
+  NODAEMON=0;
   strcpy(displayname,"unix:0");
   if (getenv("DISPLAY")) strcpy(displayname,getenv("DISPLAY"));
 }
@@ -198,6 +200,10 @@ void handleclo(int argc, char **argv)
        TITLEBAR=0;
        ook=1;
      }
+     if (!strncmp(opt2,"-nd",3)) {
+       NODAEMON=1;
+       ook=1;
+     }
      if (!strncmp(opt2,"-cw",3)) {
        CLRWIN=1;
        ook=1;
@@ -275,8 +281,12 @@ int main(int argc, char **argv)
   }
 
   /* Fork myself off... */
-  printf(" Forking...");
-  mypid=fork();
+  if (NODAEMON) {
+    mypid=0;
+  } else {
+    printf(" Forking...");
+    mypid=fork();
+  }
   switch(mypid) {
     case -1: 
       fprintf(stderr,"4va: error creating child process.\n");
