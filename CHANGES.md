@@ -1,6 +1,6 @@
 # Changes
 
-## Unreleased
+## 1.23 — 2026-09-13
 
 ### Recommended settings
 For the best results on a modern display, run
@@ -10,6 +10,11 @@ These are not the defaults, which stay close to the original behavior;
 `-rpresent` and `-aa` fall back with a warning where unsupported.
 
 ### New
+- New object collections in `data/`: Cosmic (flowing astronomical forms),
+  Minimal (sparse 4D structures) and Elsewhere (botanical, architectural and
+  animal forms), each with a guide, a preview in `doc/` and a reproducible
+  generator in `tools/`. The original objects gained a guide, a preview and
+  formula reconstructions in `tools/originals.py`.
 - Several object files and directories can be given on the command line; a
   directory stands for the `.4vd` files in it, in name order. The first
   object that loads is shown.
