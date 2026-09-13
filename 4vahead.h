@@ -68,21 +68,20 @@ extern int LTHK, CLRWIN, RESCALE, TITLEBAR;
 extern char displayname[512];
 
 /* 4VaPROJ Prototypes ... projection */
-extern void fixangles();
-extern float deg2rad();
-extern void makeemptyparams();
-extern void project();
+extern void fixangles(transfParams *params);
+extern float deg2rad(float ang);
+extern void makeemptyparams(void);
+extern void project(object *obj);
 
 /* 4VaRTN Prototypes ... object routines */
-extern int newobject();
-extern int loaddfile();
+extern int loaddfile(const char *filename);
 
 
 /* 4VaD_ Prototypes ... display */
-extern void g_cleardisplay();
-extern void g_bufferline();
-extern void g_putlines();
-extern void g_fixcoords();
-extern void g_checkevents();
-extern void g_startup();
-extern void g_shutdown();
+extern void g_cleardisplay(void);
+extern void g_bufferline(int x1, int x2, int y1, int y2, int i);
+extern void g_putlines(void);
+extern void g_fixcoords(void);
+extern void g_checkevents(void);
+extern void g_startup(void);
+extern void g_shutdown(void);

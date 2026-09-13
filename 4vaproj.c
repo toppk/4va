@@ -17,7 +17,7 @@
 #include "4vahead.h"
 #include <math.h>
 
-void fixangles(params) transfParams *params; {
+void fixangles(transfParams *params) {
   params->cxy = cos(params->rxy); params->sxy = sin(params->rxy);
   params->cxz = cos(params->rxz); params->sxz = sin(params->rxz);
   params->cyz = cos(params->ryz); params->syz = sin(params->ryz);
@@ -26,11 +26,11 @@ void fixangles(params) transfParams *params; {
   params->czw = cos(params->rzw); params->szw = sin(params->rzw);
 }
 
-float deg2rad(ang) float ang; {
+float deg2rad(float ang) {
   return (ang * (M_PI/180));
 }
 
-void makeemptyparams() {
+void makeemptyparams(void) {
   emptyparams.rxy=0; emptyparams.rxz=0; emptyparams.ryz=0;
   emptyparams.rxw=0; emptyparams.ryw=0; emptyparams.rzw=0;
   fixangles(&emptyparams);
@@ -38,8 +38,7 @@ void makeemptyparams() {
   emptyparams.sclx=emptyparams.scly=emptyparams.sclz=emptyparams.sclw=1;
 }
 
-void matrix(a, b, sinr, cosr) float *a; float *b; 
-                              float sinr; float cosr;
+static void matrix(float *a, float *b, float sinr, float cosr)
 {
   float tma;
   tma= *a;
@@ -47,7 +46,7 @@ void matrix(a, b, sinr, cosr) float *a; float *b;
   *b = (tma * sinr) + (*b * cosr);
 }
 
-point_t transform(thept, params) point_t thept; transfParams *params; {
+static point_t transform(point_t thept, transfParams *params) {
   thept.x *= params->sclx;
   thept.y *= params->scly;
   thept.z *= params->sclz;
@@ -68,7 +67,7 @@ point_t transform(thept, params) point_t thept; transfParams *params; {
   return thept;
 }
 
-void perspective(thept) point_t *thept; {
+static void perspective(point_t *thept) {
   float mw, mz;
   mw= w_dist - thept->w; mz= z_dist - thept->z;
 
@@ -93,7 +92,7 @@ void perspective(thept) point_t *thept; {
 
 }
 
-void project(obj) object *obj; {
+void project(object *obj) {
 /* This function no longer displays the object. It trnasforms all points and buffers the lines.
  * It doesn't draw anything. */
 

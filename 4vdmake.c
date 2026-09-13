@@ -18,10 +18,10 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
-main (argc, argv)
-int argc; char **argv;
+int main (int argc, char **argv)
 {
 
    double x,y,z;
@@ -76,4 +76,5 @@ int argc; char **argv;
    printf("n=4VDMMAKEV2.1.2CREATED\n");
 
    /* Now you project! */
+   return 0;
 }

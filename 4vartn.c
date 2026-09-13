@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include "4vahead.h"
 
-int loaddfile(filename) char *filename; {
+int loaddfile(const char *filename) {
 
   int i;
   FILE *in;

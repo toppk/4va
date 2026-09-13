@@ -24,7 +24,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>  
+#include <ctype.h>
+#include <unistd.h>
 #include "4vahead.h"
 
 /* These are things that were kept in 4VCMD before, but needed */
@@ -58,7 +59,7 @@ void phelp() {
    printf("\n");
 }
 
-void optbarf(o) char *o; 
+void optbarf(char *o)
 /* Barfs if bad command is given. */
 {
    printf("\n");
@@ -106,8 +107,7 @@ void clearrot() {
   } 
 }
 
-void handleclo(argc, argv) 
-  int argc; char **argv;
+void handleclo(int argc, char **argv)
 {
 /* Look for command line options. */
   int i,j;
@@ -218,8 +218,7 @@ void handleclo(argc, argv)
 }
      
 
-void main(argc, argv)
-  int argc; char **argv; 
+int main(int argc, char **argv)
 {
   int i,j,n,done=0;
   char p,c;
@@ -242,7 +241,7 @@ void main(argc, argv)
   coptr->params.sclx=coptr->params.scly=coptr->params.sclz=coptr->params.sclw=SCL;
 
   /* Get the data file. */ 
-  loaddfile(filename?filename:"");
+  loaddfile(filename);
   /* Start up the display */
   g_startup();
 
@@ -287,5 +286,6 @@ void main(argc, argv)
        printf("My pid is %d.\n",mypid);
        break;
   }
-  printf("Thanks for enjoying 4va!\n"); 
+  printf("Thanks for enjoying 4va!\n");
+  return 0;
 }

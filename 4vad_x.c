@@ -19,6 +19,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include "4vahead.h"
@@ -34,7 +35,7 @@ Colormap mycolmap;
 
 /* code */
 
-void g_cleardisplay() {
+void g_cleardisplay(void) {
 
   int i,from,to,x1,x2,y1,y2;
  
@@ -48,13 +49,13 @@ void g_cleardisplay() {
 }
 
 
-void g_bufferline(x1,x2,y1,y2,i) {  
+void g_bufferline(int x1, int x2, int y1, int y2, int i) {
    
     myseg[i].x1=x1; myseg[i].x2=x2; myseg[i].y1=y1;
     myseg[i].y2=y2;
 }
   
-void g_putlines() {
+void g_putlines(void) {
    int i;
    if (!CLRWIN) { 
      for (i=0; i<coptr->numlines; i++) {
@@ -64,7 +65,7 @@ void g_putlines() {
    XDrawSegments(mydisplay,mydb,mygc,myseg,coptr->numlines);
 }
 
-void g_fixcoords() {
+void g_fixcoords(void) {
   
   XGetWindowAttributes(mydisplay,mywin,&mywattrs);
   MAXX=mywattrs.width;
@@ -73,7 +74,7 @@ void g_fixcoords() {
   CENY=(int)(MAXY/2);
 }
 
-void g_checkevents() {
+void g_checkevents(void) {
   /* Check events from the X Server. Actually I'll just update the
    * window size by hand. Also change the scaling factor proportional to
    * how much the window was resized. */
@@ -99,7 +100,7 @@ void g_checkevents() {
    }
 }
 
-void g_startup() {
+void g_startup(void) {
 
   char name[255];
   XColor theRGBColor, theHardwareColor;
@@ -171,7 +172,7 @@ void g_startup() {
   g_fixcoords(); 
 }
 
-void g_shutdown() {
+void g_shutdown(void) {
   XCloseDisplay(mydisplay);
 }
 

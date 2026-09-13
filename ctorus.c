@@ -17,10 +17,10 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
-main (argc, argv)
-int argc; char **argv;
+int main (int argc, char **argv)
 {
 
    double x,y;
@@ -85,4 +85,5 @@ int argc; char **argv;
    printf("n=CliffordTorus-%dx%d\n",maxx,maxy);
 
    /* Now you project! */
+   return 0;
 }
