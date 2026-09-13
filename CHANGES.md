@@ -9,10 +9,15 @@
 - `-aa` draws anti-aliased lines at sub-pixel precision with XRender
   (requires `-rbuffer`). `-lw` now accepts fractional widths, which `-aa`
   honors.
+- `-rpresent` shows frames through the X Present extension, in sync with the
+  display refresh: `-fps0` gets a new frame every refresh, and rates that
+  divide the refresh rate hold each frame for whole refreshes. Works with `-aa`.
 
 ### Build
 - New `xrender` feature option (default `auto`); without it `-aa` falls back
   to ordinary lines with a warning.
+- New `xpresent` feature option (default `auto`); without it `-rpresent`
+  falls back to `-rbuffer` with a warning.
 
 ### Fixes
 - The X event queue is now read every frame: resizes come from

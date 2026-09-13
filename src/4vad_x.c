@@ -24,6 +24,9 @@
 #ifdef HAVE_XRENDER
 #include <X11/extensions/Xrender.h>
 #endif
+#ifdef HAVE_XPRESENT
+#include <X11/extensions/Xpresent.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,6 +43,24 @@ XSegment  *myseg, *myeraseseg;
 int nseg, neraseseg;
 Pixmap mypix;
 Colormap mycolmap;
+
+/* Back buffers; -rpresent cycles through several because the server holds a presented pixmap until it goes idle. */
+#define NBUF 3
+typedef struct {
+  Pixmap pix;
+  XID pict;
+  int busy;
+} buf_t;
+buf_t bufs[NBUF];
+
+#ifdef HAVE_XPRESENT
+int presentopcode, presentwait;
+unsigned presentoptions;
+uint32_t presentserial, completeserial;
+uint64_t presentinterval, lastmsc;
+#endif
+
+static void handleevent(XEvent *ev);
 
 /* Sub-pixel copies of the clipped lines, used for anti-aliasing. */
 typedef struct {
@@ -127,23 +148,85 @@ static void fillbackground(void) {
   XSetForeground(mydisplay,mygc,FRC);
 }
 
+static void usebuffer(int i) {
+  mypix=mydb=bufs[i].pix;
+#ifdef HAVE_XRENDER
+  mypict=bufs[i].pict;
+#endif
+}
+
 static void makebuffer(void) {
+  int i, n=(RENDER == RENDER_PRESENT) ? NBUF : 1;
+
+  for (i=0; i<n; i++) {
 #ifdef HAVE_XRENDER
-  if (mypict) XRenderFreePicture(mydisplay,mypict);
-  mypict=0;
+    if (bufs[i].pict) XRenderFreePicture(mydisplay,bufs[i].pict);
+    bufs[i].pict=0;
 #endif
-  if (mypix) XFreePixmap(mydisplay,mypix);
-  mypix=XCreatePixmap(mydisplay,mywin,MAXX,MAXY,
-                      DefaultDepth(mydisplay,DefaultScreen(mydisplay)));
-  mydb=mypix;
+    if (bufs[i].pix) XFreePixmap(mydisplay,bufs[i].pix);
+    bufs[i].pix=XCreatePixmap(mydisplay,mywin,MAXX,MAXY,
+                              DefaultDepth(mydisplay,DefaultScreen(mydisplay)));
+    bufs[i].busy=0;
 #ifdef HAVE_XRENDER
-  if (AA) mypict=XRenderCreatePicture(mydisplay,mypix,myfmt,0,NULL);
+    if (AA) bufs[i].pict=XRenderCreatePicture(mydisplay,bufs[i].pix,myfmt,0,NULL);
 #endif
+  }
+  usebuffer(0);
   fillbackground();
 }
 
+#ifdef HAVE_XPRESENT
+static void setuppresent(void) {
+  int evbase, errbase, major, minor;
+
+  if (!XPresentQueryExtension(mydisplay,&presentopcode,&evbase,&errbase) ||
+      !XPresentQueryVersion(mydisplay,&major,&minor)) {
+    fprintf(stderr,"4VA: Present not available, using -rbuffer.\n");
+    RENDER=RENDER_BUFFER;
+    return;
+  }
+  XPresentSelectInput(mydisplay,mywin,PresentCompleteNotifyMask|PresentIdleNotifyMask);
+}
+
+static void pickbuffer(void) {
+  /* Draw into a pixmap the server has released, waiting for one if needed. */
+  XEvent ev;
+  int i;
+
+  for (;;) {
+    for (i=0; i<NBUF; i++)
+      if (!bufs[i].busy) { usebuffer(i); return; }
+    XNextEvent(mydisplay,&ev);
+    handleevent(&ev);
+  }
+}
+
+static void presentframe(void) {
+  XEvent ev;
+  int i;
+  uint64_t target=(presentinterval > 1 && lastmsc) ? lastmsc+presentinterval : 0;
+
+  XPresentPixmap(mydisplay,mywin,mypix,++presentserial,None,None,0,0,None,None,None,
+                 presentoptions,target,0,0,NULL,0);
+  for (i=0; i<NBUF; i++)
+    if (bufs[i].pix == mypix) bufs[i].busy=1;
+  while (presentwait && completeserial != presentserial) {
+    XNextEvent(mydisplay,&ev);
+    handleevent(&ev);
+  }
+}
+#else
+static void setuppresent(void) {
+  fprintf(stderr,"4VA: built without Present, using -rbuffer.\n");
+  RENDER=RENDER_BUFFER;
+}
+#endif
+
 void g_cleardisplay(void) {
-  if (RENDER == RENDER_BUFFER) {
+  if (RENDER != RENDER_DIRECT) {
+#ifdef HAVE_XPRESENT
+    if (RENDER == RENDER_PRESENT) pickbuffer();
+#endif
     fillbackground();
   } else if (CLRWIN) {
      XClearWindow(mydisplay,mywin);
@@ -210,6 +293,10 @@ void g_putlines(void) {
    XDrawSegments(mydisplay,mydb,mygc,myseg,nseg);
    if (RENDER == RENDER_BUFFER) {
      XCopyArea(mydisplay,mypix,mywin,mygc,0,0,MAXX,MAXY,0,0);
+#ifdef HAVE_XPRESENT
+   } else if (RENDER == RENDER_PRESENT) {
+     presentframe();
+#endif
    } else if (!CLRWIN) {
      for (i=0; i<nseg; i++) {
        myeraseseg[i]=myseg[i];
@@ -227,7 +314,7 @@ void g_fixcoords(void) {
   SIZY=MAXY=mywattrs.height;
   CENX=(int)(MAXX/2);
   CENY=(int)(MAXY/2);
-  if (RENDER == RENDER_BUFFER) makebuffer();
+  if (RENDER != RENDER_DIRECT) makebuffer();
 }
 
 static void resize(int width, int height) {
@@ -249,7 +336,39 @@ static void resize(int width, int height) {
      z_dist *= change;
      w_dist *= change;
    }
-   if (RENDER == RENDER_BUFFER) makebuffer();
+   if (RENDER != RENDER_DIRECT) makebuffer();
+}
+
+static void handleevent(XEvent *ev) {
+  switch (ev->type) {
+    case ConfigureNotify:
+      if (ev->xconfigure.width != MAXX || ev->xconfigure.height != MAXY)
+        resize(ev->xconfigure.width, ev->xconfigure.height);
+      break;
+    case Expose:
+      /* -rpresent repaints on its next frame. */
+      if (RENDER == RENDER_BUFFER)
+        XCopyArea(mydisplay,mypix,mywin,mygc,ev->xexpose.x,ev->xexpose.y,
+                  ev->xexpose.width,ev->xexpose.height,ev->xexpose.x,ev->xexpose.y);
+      break;
+#ifdef HAVE_XPRESENT
+    case GenericEvent:
+      if (ev->xcookie.extension == presentopcode && XGetEventData(mydisplay,&ev->xcookie)) {
+        if (ev->xcookie.evtype == PresentCompleteNotify) {
+          XPresentCompleteNotifyEvent *ce = ev->xcookie.data;
+          completeserial=ce->serial_number;
+          lastmsc=ce->msc;
+        } else if (ev->xcookie.evtype == PresentIdleNotify) {
+          XPresentIdleNotifyEvent *ie = ev->xcookie.data;
+          int i;
+          for (i=0; i<NBUF; i++)
+            if (bufs[i].pix == ie->pixmap) bufs[i].busy=0;
+        }
+        XFreeEventData(mydisplay,&ev->xcookie);
+      }
+      break;
+#endif
+  }
 }
 
 void g_checkevents(void) {
@@ -258,17 +377,7 @@ void g_checkevents(void) {
 
   while (XPending(mydisplay)) {
     XNextEvent(mydisplay,&ev);
-    switch (ev.type) {
-      case ConfigureNotify:
-        if (ev.xconfigure.width != MAXX || ev.xconfigure.height != MAXY)
-          resize(ev.xconfigure.width, ev.xconfigure.height);
-        break;
-      case Expose:
-        if (RENDER == RENDER_BUFFER)
-          XCopyArea(mydisplay,mypix,mywin,mygc,ev.xexpose.x,ev.xexpose.y,
-                    ev.xexpose.width,ev.xexpose.height,ev.xexpose.x,ev.xexpose.y);
-        break;
-    }
+    handleevent(&ev);
   }
 }
 
@@ -313,7 +422,7 @@ void g_startup(void) {
   XSetGraphicsExposures(mydisplay,mygc,False);
   mywin=XCreateSimpleWindow(mydisplay,parent,0,0,650,650,2,0,BKC);
   /* The buffer covers the whole window, so don't let the server clear it first. */
-  if (RENDER == RENDER_BUFFER) XSetWindowBackgroundPixmap(mydisplay,mywin,None);
+  if (RENDER != RENDER_DIRECT) XSetWindowBackgroundPixmap(mydisplay,mywin,None);
   myhints.flags = USPosition|PSize;
   myhints.x=myhints.y=0;
   myhints.width=650; myhints.height=650;
@@ -342,6 +451,7 @@ void g_startup(void) {
     exit(-1);
   }
 
+  if (RENDER == RENDER_PRESENT) setuppresent();
   if (AA) setupaa();
 
   /* Fix the window size global variables; later resizes arrive as ConfigureNotify. */
@@ -350,6 +460,30 @@ void g_startup(void) {
 
 void g_shutdown(void) {
   XCloseDisplay(mydisplay);
+}
+
+int g_vsync(int fps, double hz) {
+  /* Configure Present pacing; returns 1 if each frame waits for the display. */
+#ifdef HAVE_XPRESENT
+  long k;
+
+  if (RENDER != RENDER_PRESENT) return 0;
+  presentoptions=PresentOptionNone;
+  presentinterval=0;
+  presentwait=0;
+  if (fps < 0) {
+    presentoptions=PresentOptionAsync;
+    return 0;
+  }
+  /* Rates that divide the refresh rate map to whole refresh intervals; others use the timer. */
+  k = fps ? lrint(hz / fps) : 1;
+  if (k >= 1 && (fps == 0 || fabs(hz / k - fps) <= 0.02 * fps)) {
+    presentinterval=k;
+    presentwait=1;
+    return 1;
+  }
+#endif
+  return 0;
 }
 
 double g_refreshrate(void) {

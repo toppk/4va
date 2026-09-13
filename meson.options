@@ -2,3 +2,5 @@ option('xrandr', type : 'feature', value : 'auto',
   description : 'Use XRandR to detect the display refresh rate for -fps0')
 option('xrender', type : 'feature', value : 'auto',
   description : 'Use XRender for anti-aliased lines (-aa)')
+option('xpresent', type : 'feature', value : 'auto',
+  description : 'Use the Present extension for vsync (-rpresent)')

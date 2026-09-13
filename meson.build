@@ -8,6 +8,7 @@ m_dep = cc.find_library('m', required : false)
 x11_dep = dependency('x11')
 xrandr_dep = dependency('xrandr', required : get_option('xrandr'))
 xrender_dep = dependency('xrender', required : get_option('xrender'))
+xpresent_dep = dependency('xpresent', required : get_option('xpresent'))
 
 x_args = []
 if xrandr_dep.found()
@@ -16,10 +17,13 @@ endif
 if xrender_dep.found()
   x_args += '-DHAVE_XRENDER'
 endif
+if xpresent_dep.found()
+  x_args += '-DHAVE_XPRESENT'
+endif
 
 executable('4va',
   'src/4vamain.c', 'src/4vaproj.c', 'src/4vartn.c', 'src/4vad_x.c',
-  dependencies : [m_dep, x11_dep, xrandr_dep, xrender_dep],
+  dependencies : [m_dep, x11_dep, xrandr_dep, xrender_dep, xpresent_dep],
   c_args : x_args,
   install : true)
 

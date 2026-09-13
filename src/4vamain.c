@@ -51,6 +51,7 @@ void phelp() {
    printf("  -nt              no title bar                           \n");
    printf("  -rbuffer         draw each frame off-screen (default)   \n");
    printf("  -rdirect         draw straight to the window (classic)  \n");
+   printf("  -rpresent        like -rbuffer, synced to display (vsync)\n");
    printf("  -aa              anti-aliased lines (needs -rbuffer)    \n");
    printf("  -cw              clear window, don't draw over lines    \n");
    printf("                   (-rdirect only)                        \n");
@@ -212,6 +213,7 @@ void handleclo(int argc, char **argv)
      if (!strncmp(opt2,"-r",2)) {
        if (!strcmp(opt2,"-rbuffer")) RENDER=RENDER_BUFFER;
        else if (!strcmp(opt2,"-rdirect")) RENDER=RENDER_DIRECT;
+       else if (!strcmp(opt2,"-rpresent")) RENDER=RENDER_PRESENT;
        else optbarf(opt2);
        ook=1;
      }
@@ -266,6 +268,7 @@ int main(int argc, char **argv)
   long long period_ns=0, next_ns, cur_ns;
   struct timespec ts;
   double hz;
+  int vsync;
    
   printf("\n4va v%s, by Matt Welsh\n",VER_STRING);
 
@@ -294,13 +297,14 @@ int main(int argc, char **argv)
   /* Start up the display */
   g_startup();
 
+  hz = g_refreshrate();
+  vsync = g_vsync(FPS, hz);
   if (FPS == 0) {
-    hz = g_refreshrate();
-    period_ns = (long long)(1e9 / hz);
-    printf(" Frame rate %.2f fps (display refresh).\n", hz);
+    if (!vsync) period_ns = (long long)(1e9 / hz);
+    printf(" Frame rate %.2f fps (display refresh%s).\n", hz, vsync ? ", vsync" : "");
   } else if (FPS > 0) {
-    period_ns = 1000000000LL / FPS;
-    printf(" Frame rate %d fps.\n", FPS);
+    if (!vsync) period_ns = 1000000000LL / FPS;
+    printf(" Frame rate %d fps%s.\n", FPS, vsync ? " (vsync)" : "");
   } else {
     printf(" Frame rate unlocked.\n");
   }

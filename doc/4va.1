@@ -6,7 +6,7 @@
 \fI4va, ctorus, cutctorus, 4vdmake\fP
 - 4D object tumbler for X-Windows and object generation programs
 .SH SYNOPSIS
-\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-rbuffer | -rdirect] [-aa] [-cw]
+\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-rbuffer | -rdirect | -rpresent] [-aa] [-cw]
 [ -zd \fI<dist>\fP ] [ -wd \fI<dist>\fP ] [ -lc \fI<color>\fP ] 
 [ -bc \fI<color>\fP ] [ -lw \fI<width>\fP ] [ -d \fI<display>\fP ] 
 [ -s \fI<scale>\fP ] [ -fps \fI<rate>\fP ] [ -h | -? ] \fI<object-file>\fP
@@ -55,6 +55,16 @@ so partially drawn frames are never visible. \fB-rdirect\fP is the
 original method: lines are drawn straight onto the window, and the
 previous frame is erased by redrawing it in the background color
 (or with \fB-cw\fP, by clearing the window).
+.TP
+\fB-rpresent\fP
+Like \fB-rbuffer\fP, but frames are handed to the X Present extension
+and shown in sync with the display's refresh, avoiding tearing and the
+occasional doubled or dropped frame of timer-based pacing. With
+\fB-fps0\fP every refresh shows a new frame; rates that divide the refresh
+rate (such as \fB-fps30\fP or \fB-fps10\fP on a 60Hz display) show each
+frame for a whole number of refreshes; other rates are timed as usual.
+If 4va was built without Present, or the server doesn't support it,
+a warning is printed and \fB-rbuffer\fP is used.
 .TP
 \fB-aa\fP
 Draw anti-aliased lines at sub-pixel precision using the XRender

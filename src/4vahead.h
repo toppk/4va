@@ -69,6 +69,7 @@ extern float LWIDTH;
 
 #define RENDER_DIRECT 0
 #define RENDER_BUFFER 1
+#define RENDER_PRESENT 2
 extern char displayname[512];
 
 /* 4VaPROJ Prototypes ... projection */
@@ -90,3 +91,4 @@ extern void g_checkevents(void);
 extern void g_startup(void);
 extern void g_shutdown(void);
 extern double g_refreshrate(void);
+extern int g_vsync(int fps, double hz);
