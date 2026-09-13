@@ -64,7 +64,8 @@ extern int CENX, CENY;
 extern int SIZY;
 extern long unsigned FRC, BKC;
 extern char FRCname[512], BKCname[512];
-extern int LTHK, CLRWIN, RESCALE, TITLEBAR, FPS, RENDER;
+extern int LTHK, CLRWIN, RESCALE, TITLEBAR, FPS, RENDER, AA;
+extern float LWIDTH;
 
 #define RENDER_DIRECT 0
 #define RENDER_BUFFER 1

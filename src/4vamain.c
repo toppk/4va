@@ -36,7 +36,8 @@ int MAXX, MAXY, CENX, CENY, SIZY;
 char filename[512];
 long unsigned FRC, BKC;
 char FRCname[512], BKCname[512];
-int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS, NODAEMON, RENDER;
+int perspon, LTHK, CLRWIN, ROTCLRD, RESCALE, TITLEBAR, FPS, NODAEMON, RENDER, AA;
+float LWIDTH;
 float w_dist, z_dist, rxy, rxz, ryz, rxw, ryw, rzw, SCL;
 char displayname[512];
 
@@ -50,6 +51,7 @@ void phelp() {
    printf("  -nt              no title bar                           \n");
    printf("  -rbuffer         draw each frame off-screen (default)   \n");
    printf("  -rdirect         draw straight to the window (classic)  \n");
+   printf("  -aa              anti-aliased lines (needs -rbuffer)    \n");
    printf("  -cw              clear window, don't draw over lines    \n");
    printf("                   (-rdirect only)                        \n");
    printf("  -nd              no daemon, run in the foreground       \n");
@@ -57,7 +59,8 @@ void phelp() {
    printf("  -wd(distance)    perspective. Default is 430.0.         \n");
    printf("  -lc (colorname)  set line color: like -lc LightGreen    \n");
    printf("  -bc (colorname)  set background color                   \n");
-   printf("  -lw(width)       set line width, default=0 (fastest)    \n");
+   printf("  -lw(width)       set line width, default=0 (fastest);   \n");
+   printf("                   fractional widths used with -aa        \n");
    printf("  -d (display)     set display name: like -d lsd:0        \n");
    printf("  -s(scale)        scaling factor. Default is 200.0.      \n");
    printf("  -fps(rate)       frame rate: -1 unlocked, 0 display     \n");
@@ -95,6 +98,8 @@ void setupdefaults() {
   FPS=0;
   NODAEMON=0;
   RENDER=RENDER_BUFFER;
+  AA=0;
+  LWIDTH=0;
   strcpy(displayname,"unix:0");
   if (getenv("DISPLAY")) strcpy(displayname,getenv("DISPLAY"));
 }
@@ -181,7 +186,7 @@ void handleclo(int argc, char **argv)
        ook=1;
      }
      if (!strncmp(opt2,"-lw",3)) { 
-       sscanf(opt2,"-lw%d",&LTHK);
+       sscanf(opt2,"-lw%f",&LWIDTH);
        ook=1;
      }
      if (!strncmp(opt2,"-zd",3)) { 
@@ -208,6 +213,10 @@ void handleclo(int argc, char **argv)
        if (!strcmp(opt2,"-rbuffer")) RENDER=RENDER_BUFFER;
        else if (!strcmp(opt2,"-rdirect")) RENDER=RENDER_DIRECT;
        else optbarf(opt2);
+       ook=1;
+     }
+     if (!strncmp(opt2,"-aa",3)) {
+       AA=1;
        ook=1;
      }
      if (!strncmp(opt2,"-nd",3)) {
@@ -269,6 +278,12 @@ int main(int argc, char **argv)
   setupdefaults(); 
   /* Get command line options */
   handleclo(argc,argv);
+  if (AA && RENDER == RENDER_DIRECT) {
+    printf("\n4va: -aa requires -rbuffer\n");
+    phelp();
+    exit(1);
+  }
+  LTHK=(int)(LWIDTH+0.5);
   /* Make all angles in radians */
   fixrot();
   /* Set the scaling factor for the object */

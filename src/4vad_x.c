@@ -21,6 +21,9 @@
 #ifdef HAVE_XRANDR
 #include <X11/extensions/Xrandr.h>
 #endif
+#ifdef HAVE_XRENDER
+#include <X11/extensions/Xrender.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,10 +41,85 @@ int nseg, neraseseg;
 Pixmap mypix;
 Colormap mycolmap;
 
+/* Sub-pixel copies of the clipped lines, used for anti-aliasing. */
+typedef struct {
+  float x1, y1, x2, y2;
+} fseg_t;
+fseg_t *myfseg;
+
+#ifdef HAVE_XRENDER
+Picture mypict, mypen;
+XRenderPictFormat *myfmt, *mymaskfmt;
+XTriangle *mytris;
+#endif
+
 /* Lines are clipped to the window plus this margin before going to X. */
 #define CLIPMARGIN 1024
 
 /* code */
+
+static void setupaa(void) {
+#ifdef HAVE_XRENDER
+  int evbase, errbase;
+  XColor c;
+  XRenderColor rc;
+
+  if (!XRenderQueryExtension(mydisplay,&evbase,&errbase) ||
+      !(myfmt=XRenderFindVisualFormat(mydisplay,DefaultVisual(mydisplay,DefaultScreen(mydisplay))))) {
+    fprintf(stderr,"4VA: XRender not available, -aa disabled.\n");
+    AA=0;
+    return;
+  }
+  mymaskfmt=XRenderFindStandardFormat(mydisplay,PictStandardA8);
+  c.pixel=FRC;
+  XQueryColor(mydisplay,mycolmap,&c);
+  rc.red=c.red; rc.green=c.green; rc.blue=c.blue; rc.alpha=0xffff;
+  mypen=XRenderCreateSolidFill(mydisplay,&rc);
+  if ((myfseg=(fseg_t *)malloc((coptr->numlines)*sizeof(fseg_t)))==NULL ||
+      (mytris=(XTriangle *)malloc(2*(coptr->numlines)*sizeof(XTriangle)))==NULL) {
+    fprintf(stderr,"4VA: could not allocate anti-aliasing structures.\n");
+    exit(-1);
+  }
+#else
+  fprintf(stderr,"4VA: built without XRender, -aa disabled.\n");
+  AA=0;
+#endif
+}
+
+#ifdef HAVE_XRENDER
+static void setpoint(XPointFixed *p, double x, double y) {
+  p->x=XDoubleToFixed(x);
+  p->y=XDoubleToFixed(y);
+}
+
+static void drawaa(void) {
+  /* Each line becomes a square-capped quad split into two triangles. */
+  int i, n=0;
+  double hw=(LWIDTH > 0 ? LWIDTH : 1.0)/2;
+  double ax, ay, bx, by, dx, dy, len, ux, uy, nx, ny;
+
+  for (i=0; i<nseg; i++) {
+    /* +0.5 puts integer coordinates on pixel centers, matching core X lines. */
+    ax=myfseg[i].x1+0.5; ay=myfseg[i].y1+0.5;
+    bx=myfseg[i].x2+0.5; by=myfseg[i].y2+0.5;
+    dx=bx-ax; dy=by-ay;
+    len=sqrt(dx*dx+dy*dy);
+    if (len < 1e-6) { ux=1; uy=0; } else { ux=dx/len; uy=dy/len; }
+    ax-=ux*hw; ay-=uy*hw; bx+=ux*hw; by+=uy*hw;
+    nx=-uy*hw; ny=ux*hw;
+    setpoint(&mytris[n].p1,ax+nx,ay+ny);
+    setpoint(&mytris[n].p2,bx+nx,by+ny);
+    setpoint(&mytris[n].p3,bx-nx,by-ny);
+    n++;
+    setpoint(&mytris[n].p1,ax+nx,ay+ny);
+    setpoint(&mytris[n].p2,bx-nx,by-ny);
+    setpoint(&mytris[n].p3,ax-nx,ay-ny);
+    n++;
+  }
+  if (n)
+    XRenderCompositeTriangles(mydisplay,PictOpOver,mypen,mypict,mymaskfmt,0,0,mytris,n);
+}
+#endif
 
 static void fillbackground(void) {
   XSetForeground(mydisplay,mygc,BKC);
@@ -50,10 +128,17 @@ static void fillbackground(void) {
 }
 
 static void makebuffer(void) {
+#ifdef HAVE_XRENDER
+  if (mypict) XRenderFreePicture(mydisplay,mypict);
+  mypict=0;
+#endif
   if (mypix) XFreePixmap(mydisplay,mypix);
   mypix=XCreatePixmap(mydisplay,mywin,MAXX,MAXY,
                       DefaultDepth(mydisplay,DefaultScreen(mydisplay)));
   mydb=mypix;
+#ifdef HAVE_XRENDER
+  if (AA) mypict=XRenderCreatePicture(mydisplay,mypix,myfmt,0,NULL);
+#endif
   fillbackground();
 }
 
@@ -107,6 +192,10 @@ void g_bufferline(float x1, float x2, float y1, float y2) {
 
   if (nseg >= coptr->numlines) return;
   if (!clipline(&ax, &ay, &bx, &by, -m, -m, MAXX + m, MAXY + m)) return;
+  if (AA) {
+    myfseg[nseg].x1 = ax; myfseg[nseg].y1 = ay;
+    myfseg[nseg].x2 = bx; myfseg[nseg].y2 = by;
+  }
   myseg[nseg].x1 = lrint(ax); myseg[nseg].y1 = lrint(ay);
   myseg[nseg].x2 = lrint(bx); myseg[nseg].y2 = lrint(by);
   nseg++;
@@ -114,6 +203,10 @@ void g_bufferline(float x1, float x2, float y1, float y2) {
 
 void g_putlines(void) {
    int i;
+#ifdef HAVE_XRENDER
+   if (AA) drawaa();
+   else
+#endif
    XDrawSegments(mydisplay,mydb,mygc,myseg,nseg);
    if (RENDER == RENDER_BUFFER) {
      XCopyArea(mydisplay,mypix,mywin,mygc,0,0,MAXX,MAXY,0,0);
@@ -248,6 +341,8 @@ void g_startup(void) {
     fprintf(stderr,"4VA: could not allocate erase segment structure.\n");
     exit(-1);
   }
+
+  if (AA) setupaa();
 
   /* Fix the window size global variables; later resizes arrive as ConfigureNotify. */
   g_fixcoords();

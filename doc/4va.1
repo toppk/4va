@@ -6,7 +6,7 @@
 \fI4va, ctorus, cutctorus, 4vdmake\fP
 - 4D object tumbler for X-Windows and object generation programs
 .SH SYNOPSIS
-\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-rbuffer | -rdirect] [-cw]
+\fB4va\fP [{ -xy -xz -yz -xw -yw -zw } \fI<angle>\fP ] [-np] [-ns] [-nt] [-nd] [-rbuffer | -rdirect] [-aa] [-cw]
 [ -zd \fI<dist>\fP ] [ -wd \fI<dist>\fP ] [ -lc \fI<color>\fP ] 
 [ -bc \fI<color>\fP ] [ -lw \fI<width>\fP ] [ -d \fI<display>\fP ] 
 [ -s \fI<scale>\fP ] [ -fps \fI<rate>\fP ] [ -h | -? ] \fI<object-file>\fP
@@ -56,6 +56,12 @@ original method: lines are drawn straight onto the window, and the
 previous frame is erased by redrawing it in the background color
 (or with \fB-cw\fP, by clearing the window).
 .TP
+\fB-aa\fP
+Draw anti-aliased lines at sub-pixel precision using the XRender
+extension. Requires \fB-rbuffer\fP. If 4va was built without XRender, or
+the server doesn't support it, a warning is printed and ordinary lines
+are used.
+.TP
 \fB-cw\fP
 Tell 4va to clear the window each cycle with a call to XClearWindow()
 instead of drawing over the old object in the background color. Using
@@ -77,7 +83,8 @@ The defaults are black background with red lines.
 \fB-lw \fI<width>\fR
 Specify the width of the object's lines, in pixels. The default is
 a width of 0, which is the hardware-defined fastest line. Example is
-\fB-lw5\fP.
+\fB-lw5\fP. Fractional widths such as \fB-lw1.5\fP are honored with
+\fB-aa\fP; otherwise the width is rounded to whole pixels.
 .TP
 \fB-d \fI<display>\fR
 Specify the display name. 4va first checks the \fB-d\fP switch, then

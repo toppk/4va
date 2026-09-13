@@ -6,6 +6,13 @@
 - `-rbuffer` (default) draws each frame into an off-screen pixmap and copies
   it to the window in one step, removing flicker, half-drawn frames and
   leftover pixels. `-rdirect` keeps the original draw-to-window rendering.
+- `-aa` draws anti-aliased lines at sub-pixel precision with XRender
+  (requires `-rbuffer`). `-lw` now accepts fractional widths, which `-aa`
+  honors.
+
+### Build
+- New `xrender` feature option (default `auto`); without it `-aa` falls back
+  to ordinary lines with a warning.
 
 ### Fixes
 - The X event queue is now read every frame: resizes come from

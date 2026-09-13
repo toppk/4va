@@ -7,11 +7,20 @@ cc = meson.get_compiler('c')
 m_dep = cc.find_library('m', required : false)
 x11_dep = dependency('x11')
 xrandr_dep = dependency('xrandr', required : get_option('xrandr'))
+xrender_dep = dependency('xrender', required : get_option('xrender'))
+
+x_args = []
+if xrandr_dep.found()
+  x_args += '-DHAVE_XRANDR'
+endif
+if xrender_dep.found()
+  x_args += '-DHAVE_XRENDER'
+endif
 
 executable('4va',
   'src/4vamain.c', 'src/4vaproj.c', 'src/4vartn.c', 'src/4vad_x.c',
-  dependencies : [m_dep, x11_dep, xrandr_dep],
-  c_args : xrandr_dep.found() ? ['-DHAVE_XRANDR'] : [],
+  dependencies : [m_dep, x11_dep, xrandr_dep, xrender_dep],
+  c_args : x_args,
   install : true)
 
 foreach prog : ['ctorus', 'cutctorus', '4vdmake']
