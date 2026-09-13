@@ -1,5 +1,5 @@
 project('4va', 'c',
-  version : '1.21',
+  version : '1.22',
   meson_version : '>=1.1',
   default_options : ['c_std=gnu17', 'warning_level=0', 'buildtype=release'])
 
